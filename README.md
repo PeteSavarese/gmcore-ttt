@@ -12,6 +12,10 @@ A little note: I started learning to program at 12, tweaking existing GMod addon
 Giant's Lair is where the real work began. I managed a team of developers and ran a scrum board with 1-month sprints, pointing user stories, breaking them into tasks, and tracking them through development and testing on our staging server. Scheduled releases meant nobody was racing to push a bugfix/feature/change to production. If you finished in three days, great. You still had two weeks before it went live. It always ensure that we took our time testing our changes, rather than pushing them to production.
 
 These days my focus is on what's next outside of GMod, but I'm proud of what this turned into and grateful for everyone I built it with. I'm releasing the repo as the finished form of that work, not as something I'll keep actively maintaining. Server owners, take it, fork/clone it, and make it your own. GMod is still alive and well, and the best form of creativity and uniquness per-server out there.
+
+## Looking for the Main GMCore Code?
+Jump to [main GMCore code](https://github.com/PeteSavarese/gmcore-ttt/tree/main/gmod-ttt/addons/_gmcore/lua) at `/addons/_gmcore/lua`.
+
 ## Local Development Setup
 
 ### 1. Clone the Repository
