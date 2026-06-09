@@ -1,0 +1,225 @@
+{
+	"_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+	"meta": {
+		"version": "PTDL_v2",
+		"update_url": null
+	},
+	"exported_at": "2026-02-04T19:37:24-05:00",
+	"name": "[STAGING] GMCore TTT",
+	"author": "petersavarese02@gmail.com",
+	"description": "Includes all addons, models, and config files. Downloads all maps from rotation_list on every start.",
+	"features": [
+		"gsl_token",
+		"steam_disk_space"
+	],
+	"docker_images": {
+		"ghcr.io\/giants-lair\/gmod-ttt:staging": "ghcr.io\/giants-lair\/gmod-ttt:staging"
+	},
+	"file_denylist": [],
+	"startup": "\/start.sh",
+	"config": {
+		"files": "{}",
+		"startup": "{\r\n    \"done\": \"VAC secure mode is activated\"\r\n}",
+		"logs": "{}",
+		"stop": "quit"
+	},
+	"scripts": {
+		"installation": {
+			"script": "#!\/bin\/bash\r\n# GMCore TTT Installation Script\r\n# Image is prebuilt with game files and addons.\r\n\r\necho \"Using prebuilt image; no installation steps required.\"",
+			"container": "ghcr.io\/pterodactyl\/installers:debian",
+			"entrypoint": "bash"
+		}
+	},
+	"variables": [
+		{
+			"name": "Server Name",
+			"description": "The name of your server",
+			"env_variable": "SERVER_NAME",
+			"default_value": "GMCore TTT",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string|max:128",
+			"field_type": "text"
+		},
+		{
+			"name": "Server ID",
+			"description": "Server ID for database",
+			"env_variable": "SERVER_ID",
+			"default_value": "1",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|integer",
+			"field_type": "text"
+		},
+		{
+			"name": "Server Tag",
+			"description": "Server tag identifier",
+			"env_variable": "SERVER_TAG",
+			"default_value": "gmod-ttt",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "MariaDB Host",
+			"description": "Database host",
+			"env_variable": "MARIADB_HOST",
+			"default_value": "mariadb",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "MariaDB Port",
+			"description": "Database port",
+			"env_variable": "MARIADB_PORT",
+			"default_value": "3306",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|integer",
+			"field_type": "text"
+		},
+		{
+			"name": "MariaDB User",
+			"description": "Database username",
+			"env_variable": "MARIADB_USER",
+			"default_value": "user",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "MariaDB Password",
+			"description": "Database password",
+			"env_variable": "MARIADB_PASS",
+			"default_value": "password",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Core Database",
+			"description": "Core database name",
+			"env_variable": "MARIADB_DB_CORE",
+			"default_value": "gmcore_core",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Forums Database",
+			"description": "Forums database name",
+			"env_variable": "MARIADB_DB_FORUMS",
+			"default_value": "gmcore_forums",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Forums Base URL",
+			"description": "Base URL for forums/web services",
+			"env_variable": "FORUMS_BASE_URL",
+			"default_value": "",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "nullable|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Game Server Login Token",
+			"description": "GSLT from Steam",
+			"env_variable": "GSLT",
+			"default_value": "",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "nullable|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Workshop Auth Key",
+			"description": "Steam Workshop API key",
+			"env_variable": "AUTHKEY",
+			"default_value": "",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "nullable|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Max Players",
+			"description": "Maximum number of players",
+			"env_variable": "MAX_PLAYERS",
+			"default_value": "16",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|integer|min:1|max:128",
+			"field_type": "text"
+		},
+		{
+			"name": "Map",
+			"description": "Starting map",
+			"env_variable": "MAP",
+			"default_value": "gm_construct",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Gamemode",
+			"description": "Game mode",
+			"env_variable": "GAMEMODE",
+			"default_value": "terrortown",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string",
+			"field_type": "text"
+		},
+		{
+			"name": "Auto Update",
+			"description": "Run SteamCMD update on each start",
+			"env_variable": "AUTO_UPDATE",
+			"default_value": "0",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string|in:0,1",
+			"field_type": "text"
+		},
+		{
+			"name": "Deploy Environment",
+			"description": "Deployment environment (staging)",
+			"env_variable": "DEPLOY_ENV",
+			"default_value": "staging",
+			"user_viewable": true,
+			"user_editable": false,
+			"rules": "required|string|in:staging",
+			"field_type": "text"
+		},
+		{
+			"name": "Server Location",
+			"description": "Server location (us, eu, etc.)",
+			"env_variable": "SERVER_LOCATION",
+			"default_value": "us",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string|max:5",
+			"field_type": "text"
+		},
+		{
+			"name": "Map Rotation File",
+			"description": "Filename of the map rotation JSON to load from data/gmcore/mapvote/",
+			"env_variable": "MAP_ROTATION_FILE",
+			"default_value": "rotation_list.json",
+			"user_viewable": true,
+			"user_editable": true,
+			"rules": "required|string|max:64",
+			"field_type": "text"
+		}
+	]
+}

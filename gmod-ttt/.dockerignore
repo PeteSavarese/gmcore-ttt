@@ -1,0 +1,15 @@
+data/*
+!data/gmcore/
+data/gmcore/*
+!data/gmcore/gmcore_config.json
+!data/gmcore/config/
+!data/gmcore/mapvote/
+!data/ulib/
+data/ulib/users.txt
+!data/ulx/
+cache/
+downloads/
+downloadlists/
+.idea/
+cfg/*
+!cfg/server.cfg.template

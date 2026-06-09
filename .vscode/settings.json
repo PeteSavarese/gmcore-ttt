@@ -1,0 +1,38 @@
+{
+	"editor.insertSpaces": false,
+	"editor.tabSize": 2,
+	"editor.detectIndentation": false,
+	"files.insertFinalNewline": true,
+	"files.trimTrailingWhitespace": true,
+	"files.eol": "\n",
+	"[lua]": {
+		"editor.insertSpaces": false,
+		"editor.tabSize": 2
+	},
+	"Lua.workspace.library": [
+		".vscode/mysqloo/library",
+		".vscode/garrysmod/library"
+	],
+	"Lua.workspace.userThirdParty": [
+		"garrysmod"
+	],
+	"Lua.diagnostics.disable": [
+		"undefined-global",
+		"duplicate-set-field"
+	],
+	"Lua.runtime.special": {
+		"include": "dofile",
+		"IncludeCS": "dofile"
+	},
+	"Lua.runtime.nonstandardSymbol": [
+		"continue",
+		"&&",
+		"||",
+		"!=",
+		"!",
+		"//",
+		"/**/"
+	],
+	"Lua.runtime.version": "LuaJIT",
+	"Lua.workspace.checkThirdParty": false
+}

@@ -1,0 +1,70 @@
+-- -- Simple client-based idle checking
+-- local idle = 0
+-- local activeTime = 0 -- a timer that goes up only when player is alive during active round
+-- local notified = false -- a timer that goes up only when player is alive during active round
+--
+-- hook.Add("InitPostEntity", "gmcore.Modules.Afk.CheckIdleOverride", function()
+-- 	function CheckIdle()
+-- 		local client = LocalPlayer()
+-- 		if !IsValid(client) then return end
+--
+-- 		if GetRoundState() == ROUND_ACTIVE and client:IsTerror() and client:Alive() then
+-- 			local idleLimit = GetGlobalInt("ttt_idle_limit", 300) or 300
+-- 			if idleLimit <= 0 then idleLimit = 300 end -- networking sucks sometimes
+-- 			if activeTime > (idle + idleLimit) then
+-- 				RunConsoleCommand("say", "(AUTOMATED MESSAGE) I have been moved to the Spectator team because I was idle/AFK.")
+--
+-- 				timer.Simple(0.3, function()
+-- 					RunConsoleCommand("ttt_spectator_mode", 1)
+--
+-- 					net.Start("TTT_Spectate")
+-- 					net.WriteBool(true)
+-- 					net.SendToServer()
+--
+-- 					RunConsoleCommand("ttt_cl_idlepopup")
+-- 				end)
+--
+-- 				idle = activeTime
+-- 			elseif activeTime > (idle + (idleLimit / 2)) then
+-- 				-- will repeat
+-- 				LANG.Msg("idle_warning")
+-- 			end
+--
+-- 			if activeTime > (idle + 30) and !notified and LocalPlayer():GetTraitor() then
+-- 				local traitorCount = 1
+--
+-- 				for _, ply in ipairs(player.GetAll()) do
+-- 					if ply:GetTraitor() and ply != LocalPlayer() and ply:IsTerror() and ply:Alive() then
+-- 						traitorCount = traitorCount + 1
+-- 					end
+-- 				end
+--
+-- 				if traitorCount == 1 then
+-- 					net.Start("gmcore.afk.alert")
+-- 					net.WriteInt(activeTime - idle, 10)
+-- 					net.SendToServer()
+-- 					notified = true
+-- 				end
+-- 			end
+--
+-- 			activeTime = activeTime + 5
+-- 		end
+-- 	end
+--
+-- 	timer.Create("IdleCheck", 5, 0, CheckIdle)
+-- end)
+--
+--
+-- net.Receive("gmcore.afk.alert.reject", function(len)
+-- 	notified = false
+-- end)
+--
+-- local lastCheck = CurTime()
+--
+-- hook.Add("KeyPress", "KeyPressUseHi", function(ply, key)
+-- 	if lastCheck < CurTime() + 1 then
+-- 		idle = activeTime
+-- 		notified = false
+-- 		lastCheck = CurTime()
+-- 	end
+-- end)

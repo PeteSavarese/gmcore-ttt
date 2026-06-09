@@ -1,0 +1,31 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "gmrdb",
+			"request": "attach",
+			"name": "Attach to GMod Client",
+			"host": "127.0.0.1",
+			"port": 21110,
+			"sourceRoot": "${workspaceFolder}/gmod-ttt",
+			"sourceFileMap": {
+				"${workspaceFolder}/gmod-ttt/addons": "addons",
+				"${workspaceFolder}/gmod-ttt/lua": "lua"
+			},
+			"stopOnEntry": false
+		},
+		{
+			"type": "gmrdb",
+			"request": "attach",
+			"name": "Attach to GMod Server",
+			"host": "127.0.0.1",
+			"port": 21111,
+			"sourceRoot": "${workspaceFolder}/gmod-ttt",
+			"sourceFileMap": {
+				"${workspaceFolder}/gmod-ttt/addons": "addons",
+				"${workspaceFolder}/gmod-ttt/lua": "lua"
+			},
+			"stopOnEntry": false
+		}
+	]
+}

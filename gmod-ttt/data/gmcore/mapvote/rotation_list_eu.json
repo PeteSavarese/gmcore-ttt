@@ -1,0 +1,107 @@
+[
+	{
+		"map": "ttt_mc_airship_fix",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_bank",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_dinkledome",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_dolls_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_electricavenue",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_nuketown_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_nuketown_b1",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_office",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_richland",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_seriouscraft_b6",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_snow_v2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_tinytown_b69",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraft_b5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraft_b6_spooky",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraft_expedition_small",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraft_haven",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraft_mythic_r2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraftcity_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraftmotel_b2u",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_skycraftfinal",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraftcity_v4_dark",
+		"min": 0,
+		"max": 0
+	}
+]

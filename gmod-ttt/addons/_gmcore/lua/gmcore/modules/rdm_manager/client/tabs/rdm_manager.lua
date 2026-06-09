@@ -1,0 +1,1315 @@
+surface.CreateFont("DL_RDM_Manager", {
+	font = "DermaLarge",
+	size = 20
+})
+
+surface.CreateFont("DL_Conclusion", {
+	font = "DermaLarge",
+	size = 18,
+	weight = 600
+})
+
+surface.CreateFont("DL_ConclusionText", {
+	font = "DermaLarge",
+	size = 18
+})
+
+surface.CreateFont("DL_ResponseDisabled", {
+	font = "DermaLarge",
+	size = 16
+})
+
+local color_trablack = Color(0, 0, 0, 240)
+
+local function AdjustText(str, font, w)
+	surface.SetFont(font)
+	local size = surface.GetTextSize(str)
+
+	if size <= w then
+		return str
+	else
+		local last_space
+		local i = 0
+
+		for k, v in pairs(string.ToTable(str)) do
+			local _w = surface.GetTextSize(v)
+			i = i + _w
+
+			if i > w then
+				local sep = last_space or k
+
+				return string.Left(str, sep), string.Right(str, #str - sep)
+			end
+
+			if v == " " then
+				last_space = k
+			end
+		end
+	end
+end
+
+local function SetConclusion(ply, num, reason, report)
+	net.Start("DL_Conclusion")
+	net.WriteUInt(1, 1)
+	net.WriteUInt(report.previous and 1 or 0, 1)
+	net.WriteUInt(report.index, 16)
+	net.WriteString(ply .. " slain " .. num .. " times (" .. reason .. ")")
+	net.SendToServer()
+end
+
+local function slayNrToolbar(bIsVictim)
+	local report = Damagelog.SelectedReport
+	local slayNrMenu = DermaMenu()
+
+	local plyInfo = {}
+
+	if bIsVictim then
+		plyInfo.nick = report.attacker_nick
+		plyInfo.steamid = report.attacker
+	else
+		plyInfo.nick = report.victim_nick
+		plyInfo.steamid = report.victim
+	end
+
+	slayNrMenu:Open()
+
+	for k, img in ipairs({"bullet_green.png", "bullet_yellow.png", "bullet_red.png"}) do
+		slayNrMenu:AddOption(k .. " times", function()
+			GL_StringRequest("Reason", "Type the reason why you want to slay " .. plyInfo.nick, "", function(txt)
+				RunConsoleCommand("ulx", "slaynrid", plyInfo.steamid, tostring(k), txt)
+				SetConclusion(plyInfo.nick, k, "\"" .. txt .. "\"", report)
+			end)
+		end):SetImage("icon16/" .. img)
+	end
+end
+
+local tMassRDMTimes = {
+	[1] = 5 * 24 * 60, -- 5d
+	[2] = 2 * 7 * 24 * 60, -- 2w
+	[3] = 4 * 7 * 24 * 60, -- 4w
+}
+
+local function banToolbar(bIsVictim)
+	local report = Damagelog.SelectedReport
+	local slayNrMenu = DermaMenu()
+	local plyInfo = {}
+
+	if bIsVictim then
+		plyInfo.nick = report.attacker_nick
+		plyInfo.steamid = report.attacker
+	else
+		plyInfo.nick = report.victim_nick
+		plyInfo.steamid = report.victim
+	end
+
+	slayNrMenu:Open()
+
+	slayNrMenu:AddOption("Mass RDM (4+ kills)", function()
+		GMCore_DialogQuery("Mass RDM (" .. plyInfo.nick .. " - " .. plyInfo.steamid .. ") | CHECK Histroy Logs FIRST for offense count!", "Mass RDM Ban Manager",
+		"1st Offense", function()
+			RunConsoleCommand("ulx", "banid", plyInfo.steamid, tMassRDMTimes[1], "Mass RDM (1st offense)")
+		end,
+
+		"2nd Offense", function()
+			RunConsoleCommand("ulx", "banid", plyInfo.steamid, tMassRDMTimes[2], "Mass RDM (2nd offense)")
+		end,
+
+		"3rd Offense", function()
+			RunConsoleCommand("ulx", "banid", plyInfo.steamid, tMassRDMTimes[3], "Mass RDM (3rd offense)")
+		end,
+		"Cancel")
+	end):SetImage("icon16/user_delete.png")
+end
+
+local show_finished = CreateClientConVar("rdm_manager_show_finished", "1", FCVAR_ARCHIVE)
+
+-- Helper function to check if a report status is resolved
+local function IsReportResolved(status)
+	return status == RDM_MANAGER_VALID or status == RDM_MANAGER_INVALID or status == RDM_MANAGER_INVALID_WVW
+end
+
+cvars.AddChangeCallback("rdm_manager_show_finished", function(name, old, new)
+	if IsValid(Damagelog.CurrentReports) then
+		Damagelog.CurrentReports:UpdateAllReports()
+	end
+
+	if IsValid(Damagelog.PreviousReports) then
+		Damagelog.PreviousReports:UpdateAllReports()
+	end
+end)
+
+local status = {
+	[RDM_MANAGER_WAITING] = TTTLogTranslate(GetDMGLogLang, "RDMWaiting"),
+	[RDM_MANAGER_PROGRESS] = TTTLogTranslate(GetDMGLogLang, "RDMInProgress"),
+	[RDM_MANAGER_VALID] = TTTLogTranslate(GetDMGLogLang, "RDMValid"),
+	[RDM_MANAGER_INVALID] = TTTLogTranslate(GetDMGLogLang, "RDMInvalid"),
+	[RDM_MANAGER_INVALID_WVW] = TTTLogTranslate(GetDMGLogLang, "RDMInvalidWvW")
+}
+
+RDM_MANAGER_STATUS = status
+
+local icons = {
+	[RDM_MANAGER_WAITING] = "icon16/clock.png",
+	[RDM_MANAGER_PROGRESS] = "icon16/arrow_refresh.png",
+	[RDM_MANAGER_VALID] = "icon16/accept.png",
+	[RDM_MANAGER_INVALID] = "icon16/cross.png",
+	[RDM_MANAGER_INVALID_WVW] = "icon16/exclamation.png"
+}
+
+RDM_MANAGER_ICONS = icons
+
+local function DrawStatusMenuOption(id, menu)
+	menu:AddOption(status[id], function()
+		net.Start("DL_UpdateStatus")
+		net.WriteUInt(Damagelog.SelectedReport.previous and 1 or 0, 1)
+		net.WriteUInt(Damagelog.SelectedReport.index, 16)
+		net.WriteUInt(id, 4)
+		net.SendToServer()
+	end):SetImage(icons[id])
+end
+
+local colors = {
+	[RDM_MANAGER_PROGRESS] = Color(63, 137, 255),
+	[RDM_MANAGER_VALID] = Color(0, 190, 0),
+	[RDM_MANAGER_INVALID] = Color(255, 38, 38),
+	[RDM_MANAGER_INVALID_WVW] = Color(255, 165, 0),
+	[RDM_MANAGER_WAITING] = Color(255, 255, 255)
+}
+
+local function TakeAction()
+	local report = Damagelog.SelectedReport
+	if not report then return end
+
+	local current = not report.previous
+	local attacker = player.GetBySteamID(report.attacker)
+	local victim = player.GetBySteamID(report.victim)
+
+	local menuPanel = DermaMenu()
+
+	local statusMenu = vgui.Create("DMenuOption", menuPanel)
+	local statusSubMenu = DermaMenu(menuPanel)
+
+	statusSubMenu:SetVisible(false)
+
+	statusMenu:SetSubMenu(statusSubMenu)
+	statusMenu:SetText(TTTLogTranslate(GetDMGLogLang, "SStatus"))
+	statusMenu:SetImage("icon16/flag_blue.png")
+
+	menuPanel:AddPanel(statusMenu)
+
+	DrawStatusMenuOption(RDM_MANAGER_WAITING, statusSubMenu)
+	DrawStatusMenuOption(RDM_MANAGER_PROGRESS, statusSubMenu)
+	DrawStatusMenuOption(RDM_MANAGER_VALID, statusSubMenu)
+	DrawStatusMenuOption(RDM_MANAGER_INVALID, statusSubMenu)
+	DrawStatusMenuOption(RDM_MANAGER_INVALID_WVW, statusSubMenu)
+
+	menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "RDMSetConclusion"), function()
+		GL_StringRequest(TTTLogTranslate(GetDMGLogLang, "RDMConclusion"), TTTLogTranslate(GetDMGLogLang, "RDMWriteConclusion"), "", function(txt)
+			if #txt > 0 and #txt < 200 then
+				net.Start("DL_Conclusion")
+				net.WriteUInt(0, 1)
+				net.WriteUInt(report.previous and 1 or 0, 1)
+				net.WriteUInt(report.index, 16)
+				net.WriteString(txt)
+				net.SendToServer()
+			end
+		end)
+	end):SetImage("icon16/comment.png")
+
+	if not report.response then
+		menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "RDMForceRespond"), function()
+			if IsValid(attacker) then
+				net.Start("DL_ForceRespond")
+				net.WriteUInt(report.index, 16)
+				net.WriteUInt(current and 0 or 1, 1)
+				net.SendToServer()
+			else
+				Derma_Message(TTTLogTranslate(GetDMGLogLang, "RDMNotValid"), TTTLogTranslate(GetDMGLogLang, "Error"), "OK")
+			end
+		end):SetImage("icon16/clock_red.png")
+	end
+
+	if not report.previous then
+		if not report.chat_open then
+			menuPanel:AddOption(report.chat_opened and TTTLogTranslate(GetDMGLogLang, "ViewChat") or TTTLogTranslate(GetDMGLogLang, "OpenChat"), function()
+				if not report.chat_opened then
+					net.Start("DL_StartChat")
+					net.WriteUInt(report.index, 32)
+					net.SendToServer()
+
+					if not report.response then
+						Damagelog.DisableResponse(true)
+					end
+
+					if report.status == RDM_MANAGER_WAITING then
+						net.Start("DL_UpdateStatus")
+						net.WriteUInt(report.previous and 1 or 0, 1)
+						net.WriteUInt(report.index, 16)
+						net.WriteUInt(RDM_MANAGER_PROGRESS, 4)
+						net.SendToServer()
+					end
+				else
+					net.Start("DL_ViewChat")
+					net.WriteUInt(report.index, 32)
+					net.SendToServer()
+				end
+			end):SetImage("icon16/application_view_list.png")
+		else
+			menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "JoinChat"), function()
+				net.Start("DL_JoinChat")
+				net.WriteUInt(report.index, 32)
+				net.SendToServer()
+			end):SetImage("icon16/application_go.png")
+		end
+	end
+
+	menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "ShowDeathScene"), function()
+		if !report.logs then
+			GMCore_MessageDialog(TTTLogTranslate(GetDMGLogLang, "DeathSceneNotFound"), TTTLogTranslate(GetDMGLogLang, "Error"), "OK")
+
+			return
+		end
+
+		local found = false
+		local roles = report.logs.roles
+		local victimID = util.SteamIDTo64(report.victim)
+		local attackerID = util.SteamIDTo64(report.attacker)
+
+		for _, v in pairs(report.logs.logs or {}) do
+			if v.id and Damagelog.events[v.id].Type == "KILL" then
+				local infos = v.infos
+				local att = Damagelog:InfoFromID(roles, infos[1])
+				local ent = Damagelog:InfoFromID(roles, infos[2])
+
+				if ent.steamid64 == victimID and att.steamid64 == attackerID then
+					net.Start("DL_AskDeathScene")
+					net.WriteUInt(infos[4], 32)
+					net.WriteUInt(infos[2], 32)
+					net.WriteUInt(infos[1], 32)
+					net.WriteString(report.attacker)
+					net.SendToServer()
+					found = true
+					break
+				end
+			end
+		end
+
+		if not found then
+			GMCore_MessageDialog(TTTLogTranslate(GetDMGLogLang, "DeathSceneNotFound"), TTTLogTranslate(GetDMGLogLang, "Error"), "OK")
+		end
+	end):SetImage("icon16/television.png")
+
+	if (serverguard or sam or sAdmin or ulx) and Damagelog.AllowBanningThruManager then
+			local function SetConclusionBan(ply, num, reason)
+				net.Start("DL_Conclusion")
+				net.WriteUInt(1, 1)
+				net.WriteUInt(report.previous and 1 or 0, 1)
+				net.WriteUInt(report.index, 16)
+				net.WriteString(string.format(TTTLogTranslate(GetDMGLogLang, "AutoReasonBan"), ply, num, reason))
+				net.SendToServer()
+			end
+
+			local ban_pnl = vgui.Create("DMenuOption", menuPanel)
+			local ban_sub = DermaMenu(menuPanel)
+			ban_sub:SetVisible(false)
+			ban_pnl:SetSubMenu(ban_sub)
+			ban_pnl:SetText(TTTLogTranslate(GetDMGLogLang, "rdmmanager_action_ban"))
+			ban_pnl:SetImage("icon16/bomb.png")
+			menuPanel:AddPanel(ban_pnl)
+
+			ban_sub:AddOption(TTTLogTranslate(GetDMGLogLang, "ReportedPlayer") .. " (" .. report.attacker_nick .. ")", function()
+				local frame = vgui.Create("RDM_Manager_Ban_Reason", Damagelog.Menu)
+				frame.SetConclusion = SetConclusionBan
+				frame:SetPlayer(true, attacker, report.attacker, report)
+			end):SetImage("icon16/user_delete.png")
+
+			ban_sub:AddOption(TTTLogTranslate(GetDMGLogLang, "Victim") .. " (" .. report.victim_nick .. ")", function()
+				local frame = vgui.Create("RDM_Manager_Ban_Reason", Damagelog.Menu)
+				frame.SetConclusion = SetConclusionBan
+				frame:SetPlayer(false, victim, report.victim, report)
+			end):SetImage("icon16/user.png")
+	end
+
+	if ulx then
+		local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+		local slaynr = DermaMenu(menuPanel)
+		slaynr:SetVisible(false)
+		slaynr_pnl:SetSubMenu(slaynr)
+		slaynr_pnl:SetText("SlayNr")
+		slaynr_pnl:SetImage("icon16/lightning.png")
+		menuPanel:AddPanel(slaynr_pnl)
+
+		slaynr:AddOption("The reported player", function()
+			slayNrToolbar(true)
+		end):SetImage("icon16/user_delete.png")
+
+		slaynr:AddOption("The victim", function()
+			slayNrToolbar(false)
+		end):SetImage("icon16/user.png")
+
+		local rslaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+		local rslaynr = DermaMenu(menuPanel)
+		rslaynr:SetVisible(false)
+		rslaynr_pnl:SetSubMenu(rslaynr)
+		rslaynr_pnl:SetText("Remove slays of")
+		rslaynr_pnl:SetImage("icon16/cancel.png")
+		menuPanel:AddPanel(rslaynr_pnl)
+
+		rslaynr:AddOption("The reported player", function()
+			RunConsoleCommand("ulx", "rslaynrid", report.attacker)
+		end):SetImage("icon16/user_delete.png")
+
+		rslaynr:AddOption("The victim", function()
+			RunConsoleCommand("ulx", "rslaynrid", report.victim)
+		end):SetImage("icon16/user.png")
+	end
+
+	menuPanel:Open()
+end
+
+local PANEL = {}
+
+function PANEL:Init()
+	self:SetMultiSelect(false)
+	self.IDWidth = 25
+	self.VictimWidth = 105
+	self.ReportedPlayerWidth = 105
+	self.RoundWidth = 49
+	self.ResponseStatusWidth = 110
+	self.CanceledWidth = 55
+	self.StatusWidth = 174 -- acts as minimum for dynamic sizing
+	self.CanceledPos = self.IDWidth + self.ReportedPlayerWidth + self.VictimWidth + self.RoundWidth + self.ResponseStatusWidth
+	self:AddColumn("ID"):SetFixedWidth(self.IDWidth)
+	self:AddColumn(TTTLogTranslate(GetDMGLogLang, "Victim")):SetFixedWidth(self.VictimWidth)
+	self:AddColumn(TTTLogTranslate(GetDMGLogLang, "ReportedPlayer")):SetFixedWidth(self.ReportedPlayerWidth)
+	self:AddColumn(TTTLogTranslate(GetDMGLogLang, "Round")):SetFixedWidth(self.RoundWidth)
+	self:AddColumn(TTTLogTranslate(GetDMGLogLang, "ResponseStatus")):SetFixedWidth(self.ResponseStatusWidth)
+	self:AddColumn(TTTLogTranslate(GetDMGLogLang, "Canceled")):SetFixedWidth(self.CanceledWidth)
+	self.StatusCol = self:AddColumn(TTTLogTranslate(GetDMGLogLang, "Status"))
+	self.StatusCol:SetFixedWidth(self.StatusWidth)
+	self.Reports = {}
+end
+
+function PANEL:AdjustAllColumnWidths()
+	if not self.Columns or #self.Columns == 0 then return end
+	local listW = self:GetWide()
+	if listW <= 0 then return end
+	local scrollbar = (self.VBar and self.VBar:IsVisible()) and 16 or 0
+	local padding = 8
+	local available = listW - scrollbar - padding
+	if available <= 0 then return end
+
+	local bases = {
+		self.IDWidth,
+		self.VictimWidth,
+		self.ReportedPlayerWidth,
+		self.RoundWidth,
+		self.ResponseStatusWidth,
+		self.CanceledWidth,
+		self.StatusWidth
+	}
+	local baseSum = 0
+	for i = 1, #bases do baseSum = baseSum + bases[i] end
+	if baseSum <= 0 then return end
+	local scale = available / baseSum
+	local used = 0
+	for i = 1, #bases do
+		local col = self.Columns[i]
+		if IsValid(col) then
+			local w
+			if i == #bases then
+				-- last column gets remaining width
+				w = available - used
+			else
+				w = math.max(bases[i], math.floor(bases[i] * scale))
+				used = used + w
+			end
+			col:SetFixedWidth(w)
+		end
+	end
+
+	-- Reposition icon
+	for _, line in ipairs(self.Lines or {}) do
+		if IsValid(line) and IsValid(line.CanceledIcon) and line.Columns and line.Columns[6] then
+			local x = select(1, line.Columns[6]:GetPos())
+			local cw = line.Columns[6]:GetWide()
+			line.CanceledIcon:SetPos(x + cw / 2 - 8, line.CanceledIcon.y or 0)
+		end
+	end
+end
+
+function PANEL:OnSizeChanged()
+	self:AdjustAllColumnWidths()
+end
+
+function PANEL:PerformLayout()
+	self:AdjustAllColumnWidths()
+
+	return DListView.PerformLayout(self)
+end
+
+function PANEL:SetOuputs(victim, killer)
+	self.VictimOutput = victim
+	self.KillerOuput = killer
+end
+
+function PANEL:SetReportsTable(tbl)
+	self.ReportsTable = tbl
+end
+
+function PANEL:GetStatus(report)
+	local str = status[report.status]
+
+	if (IsReportResolved(report.status) or report.status == RDM_MANAGER_PROGRESS) and report.admin then
+		str = str .. " " .. TTTLogTranslate(GetDMGLogLang, "By") .. " " .. report.admin
+	end
+
+	return str
+end
+
+function PANEL:UpdateReport(index)
+	local report = self.ReportsTable[index]
+	if not report then return end
+	local str
+
+	if report.chat_open then
+		str = TTTLogTranslate(GetDMGLogLang, "ChatActive")
+	elseif report.chat_opened then
+		str = TTTLogTranslate(GetDMGLogLang, "ChatOpenedShort")
+	else
+		str = report.response and TTTLogTranslate(GetDMGLogLang, "RDMResponded") or TTTLogTranslate(GetDMGLogLang, "RDMWaitingAttacker")
+	end
+
+	local tbl = {report.index, report.adminReport and "N/A (Admin Report)" or report.victim_nick, report.attacker_nick, report.round or "?", str, report.adminReport and "N/A" or "", self:GetStatus(report)}
+
+	local cancelledIcon = (report.canceled == false and "icon16/cross.png") or (report.canceled == true and "icon16/tick.png") or "icon16/clock.png"
+
+
+	if not self.Reports[index] then
+		-- We have received a new report/an existing report for the first time
+
+		if not IsReportResolved(report.status) or show_finished:GetBool() then
+			self.Reports[index] = self:AddLine(unpack(tbl))
+			self.Reports[index].status = report.status
+			self.Reports[index].index = report.index
+
+			local tbl = {self.Reports[index]}
+
+			self.Reports[index].CanceledIcon = vgui.Create("DImage", self.Reports[index])
+			self.Reports[index].CanceledIcon:SetSize(16, 16)
+			self.Reports[index].CanceledIcon:SetImage(cancelledIcon)
+			self.Reports[index].CanceledIcon:SetPos(self.CanceledPos + self.CanceledWidth / 2 - 10)
+
+			if report.adminReport then
+				self.Reports[index].CanceledIcon:SetVisible(false)
+			end
+
+			for k, v in ipairs(self.Sorted) do
+				if k ~= #self.Sorted then
+					table.insert(tbl, v)
+				end
+			end
+
+			self.Sorted = tbl
+			self:InvalidateLayout()
+
+			self.Reports[index].PaintOver = function(self)
+				if self:IsLineSelected() then
+					self.Columns[2]:SetTextColor(color_white) -- TODO: "color_white" = predefined?
+					self.Columns[3]:SetTextColor(color_white)
+					self.Columns[5]:SetTextColor(color_white)
+					self.Columns[7]:SetTextColor(color_white)
+				else
+					self.Columns[2]:SetTextColor(report.adminReport and Color(190, 190, 0) or Color(0, 190, 0))
+					self.Columns[3]:SetTextColor(colors[RDM_MANAGER_INVALID])
+					self.Columns[7]:SetTextColor(colors[report.status])
+
+					if report.chat_open then
+						self.Columns[5]:SetTextColor(Color(100 + math.abs(math.sin(CurTime()) * 155), 0, 0))
+					else
+						self.Columns[5]:SetTextColor(color_white)
+					end
+				end
+			end
+
+			self.Reports[index].OnRightClick = function(self)
+				TakeAction()
+			end
+		else
+			self.Reports[index] = false
+		end
+	else
+		-- We have received an update for a report we have seen before
+
+		self.Reports[index].status = report.status
+		self.Reports[index].index = report.index
+
+		if IsReportResolved(report.status) and not show_finished:GetBool() then
+			return self:UpdateAllReports()
+		else
+			for k in ipairs(self.Reports[index].Columns) do
+				self.Reports[index]:SetValue(k, tbl[k])
+			end
+		end
+
+		self.Reports[index].CanceledIcon:SetImage(cancelledIcon)
+
+		if report.conclusion then
+			local selected = Damagelog.SelectedReport
+
+			if selected and selected.index == report.index and selected.previous == report.previous then
+				self.Conclusion:SetText(report.conclusion)
+			end
+		end
+
+		self.Reports[index].PaintOver = function(self)
+			if self:IsLineSelected() then
+				self.Columns[2]:SetTextColor(color_white)
+				self.Columns[3]:SetTextColor(color_white)
+				self.Columns[5]:SetTextColor(color_white)
+				self.Columns[7]:SetTextColor(color_white)
+			else
+				self.Columns[2]:SetTextColor(report.adminReport and Color(190, 190, 0) or Color(0, 190, 0))
+				self.Columns[3]:SetTextColor(colors[RDM_MANAGER_INVALID])
+				self.Columns[7]:SetTextColor(colors[report.status])
+
+				if report.chat_open then
+					self.Columns[5]:SetTextColor(Color(100 + math.abs(math.sin(CurTime()) * 155), 0, 0))
+				else
+					self.Columns[5]:SetTextColor(color_white)
+				end
+			end
+		end
+	end
+
+	return self.Reports[index]
+end
+
+function PANEL:AddReport(index)
+	return self:UpdateReport(index)
+end
+
+function PANEL:UpdateAllReports()
+	self:Clear()
+	table.Empty(self.Reports)
+	if not self.ReportsTable then return end
+
+	for i = 1, #self.ReportsTable do
+		self:AddReport(i)
+	end
+
+	if Damagelog.SelectedReport then
+		local selected_current = not Damagelog.SelectedReport.Previous
+		local current = not self.Previous
+
+		if not IsReportResolved(Damagelog.SelectedReport.status) and not show_finished:GetBool() then
+			for _, v in pairs(self.Lines) do
+				v:SetSelected(false)
+			end
+
+			Damagelog.SelectedReport = nil
+			Damagelog:UpdateReportTexts()
+		elseif selected_current == current then
+			for _, v in pairs(self.Lines) do
+				if Damagelog.SelectedReport.index == v.index then
+					v:SetSelected(true)
+					break
+				end
+			end
+		end
+
+		if Damagelog.SelectedReport then
+			local report = Damagelog.SelectedReport
+			local conclusion = report.conclusion
+
+			if conclusion then
+				self.Conclusion:SetText(conclusion)
+			else
+				self.Conclusion:SetText(TTTLogTranslate(GetDMGLogLang, "NoConclusion"))
+			end
+
+			if not report.response and report.chat_opened then
+				Damagelog.DisableResponse(true)
+			else
+				Damagelog.DisableResponse(false)
+			end
+		end
+
+		Damagelog:UpdateReportTexts()
+	end
+end
+
+function PANEL:OnRowSelected(index, line)
+	Damagelog.SelectedReport = self.ReportsTable[line.index]
+	Damagelog:UpdateReportTexts()
+	local report = Damagelog.SelectedReport
+
+	if not report.response and report.chat_opened then
+		Damagelog.DisableResponse(true)
+	else
+		Damagelog.DisableResponse(false)
+	end
+
+	local conclusion = Damagelog.SelectedReport.conclusion
+
+	if conclusion then
+		self.Conclusion:SetText(conclusion)
+	else
+		self.Conclusion:SetText(TTTLogTranslate(GetDMGLogLang, "NoConclusion"))
+	end
+
+	if Damagelog.SelectedReport.previous then
+		if Damagelog.CurrentReports:GetSelected()[1] then
+			Damagelog.CurrentReports:GetSelected()[1]:SetSelected(false)
+		end
+	else
+		if Damagelog.PreviousReports:GetSelected()[1] then
+			Damagelog.PreviousReports:GetSelected()[1]:SetSelected(false)
+		end
+	end
+end
+
+vgui.Register("RDM_Manager_ListView", PANEL, "DListView")
+
+net.Receive("DL_NewReport", function()
+	local tbl = net.ReadTable()
+	local index = table.insert(Damagelog.Reports.Current, tbl)
+	Damagelog.Reports.Current[index].index = index
+
+	if IsValid(Damagelog.CurrentReports) then
+		Damagelog.CurrentReports:AddReport(index)
+	end
+end)
+
+net.Receive("DL_UpdateReport", function()
+	local previous = net.ReadUInt(1) == 1
+	local index = net.ReadUInt(8)
+	local updated = net.ReadTable()
+	updated.index = index
+
+	if previous then
+		Damagelog.Reports.Previous[index] = updated
+
+		if IsValid(Damagelog.PreviousReports) then
+			Damagelog.PreviousReports:UpdateReport(index)
+		end
+	else
+		Damagelog.Reports.Current[index] = updated
+
+		if IsValid(Damagelog.CurrentReports) then
+			Damagelog.CurrentReports:UpdateReport(index)
+		end
+	end
+
+	if Damagelog.SelectedReport and Damagelog.SelectedReport.index == index and (not Damagelog.SelectedReport.previous and not previous or Damagelog.SelectedReport.previous == previous) then
+		Damagelog.SelectedReport = updated
+	end
+
+	if IsValid(Damagelog.CurrentReports) then
+		Damagelog:UpdateReportTexts()
+	end
+end)
+
+net.Receive("DL_UpdateReports", function()
+	Damagelog.SelectedReport = nil
+	local size = net.ReadUInt(32)
+	local data = net.ReadData(size)
+	if not data then return end
+	local json = util.Decompress(data)
+	if not json then return end
+	Damagelog.Reports = util.JSONToTable(json)
+
+	if IsValid(Damagelog.CurrentReports) then
+		Damagelog.CurrentReports:UpdateAllReports()
+	end
+
+	if IsValid(Damagelog.PreviousReports) then
+		Damagelog.PreviousReports:UpdateAllReports()
+	end
+end)
+
+
+function Damagelog:DrawRDMManager(x, y)
+	if LocalPlayer():CanUseRDMManager() and Damagelog.RDM_Manager_Enabled then
+		local Manager = vgui.Create("DPanelList")
+		Manager:SetSpacing(10)
+		local Background = vgui.Create("ColoredBox")
+		Background:SetHeight(170)
+		Background:SetColor(Color(90, 90, 95))
+	local ReportsSheet = vgui.Create("DPropertySheet", Background)
+	ReportsSheet:SetPos(5, 5)
+		self.CurrentReports = vgui.Create("RDM_Manager_ListView")
+		self.CurrentReports:SetReportsTable(Damagelog.Reports.Current)
+		self.CurrentReports.Previous = false
+		ReportsSheet:AddSheet(TTTLogTranslate(GetDMGLogLang, "Reports"), self.CurrentReports, "icon16/zoom.png")
+		self.PreviousReports = vgui.Create("RDM_Manager_ListView")
+		self.PreviousReports:SetReportsTable(Damagelog.Reports.Previous)
+		self.PreviousReports.Previous = true
+		ReportsSheet:AddSheet(TTTLogTranslate(GetDMGLogLang, "PreviousMapReports"), self.PreviousReports, "icon16/world.png")
+		local ShowFinished = vgui.Create("DCheckBoxLabel", Background)
+		ShowFinished:SetText(TTTLogTranslate(GetDMGLogLang, "ShowFinishedReports"))
+		ShowFinished:SetConVar("rdm_manager_show_finished")
+		ShowFinished:SizeToContents()
+	local SetState = vgui.Create("DButton", Background)
+	SetState:SetText(TTTLogTranslate(GetDMGLogLang, "SStatus"))
+	SetState:SetSize(80, 18)
+
+		SetState.Think = function(self)
+			self:SetEnabled(Damagelog.SelectedReport)
+		end
+
+		SetState.DoClick = function()
+			local menu = DermaMenu()
+
+			DrawStatusMenuOption(RDM_MANAGER_WAITING, menu)
+			DrawStatusMenuOption(RDM_MANAGER_PROGRESS, menu)
+			DrawStatusMenuOption(RDM_MANAGER_VALID, menu)
+			DrawStatusMenuOption(RDM_MANAGER_INVALID, menu)
+			DrawStatusMenuOption(RDM_MANAGER_INVALID_WVW, menu)
+
+			menu:Open()
+		end
+
+	local CreateReport = vgui.Create("DButton", Background)
+	CreateReport:SetText(TTTLogTranslate(GetDMGLogLang, "CreateReport"))
+	CreateReport:SetSize(80, 18)
+
+		CreateReport.DoClick = function()
+			RunConsoleCommand("dmglogs_startreport")
+		end
+
+		Manager:AddItem(Background)
+		local VictimInfos = vgui.Create("DPanel")
+		VictimInfos:SetHeight(110)
+		VictimInfos.isAdmin = false
+
+		VictimInfos.Paint = function(panel, w, h)
+			local bar_height = 27
+
+			if panel.isAdmin then
+				surface.SetDrawColor(200, 200, 30)
+			else
+				surface.SetDrawColor(30, 200, 30)
+			end
+
+			surface.DrawRect(0, 0, w / 2, bar_height)
+
+			if panel.isAdmin then
+				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "AdminsMessage"), "DL_RDM_Manager", 5, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			else
+				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "VictimsReport"), "DL_RDM_Manager", 5, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			end
+
+			surface.SetDrawColor(220, 30, 30)
+			surface.DrawRect(w / 2 + 1, 0, w / 2, bar_height)
+			local rightX = w / 2 + 5
+			draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "ReportedPlayerResponse"), "DL_RDM_Manager", rightX, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			surface.SetDrawColor(0, 0, 0)
+			surface.DrawOutlinedRect(0, 0, w, h)
+			surface.DrawLine(w / 2, 0, w / 2, h)
+			surface.DrawLine(0, 27, w, bar_height)
+
+			if panel.DisableR then
+				surface.SetDrawColor(color_trablack)
+				surface.DrawRect(w / 2 + 1, 0, w / 2, h)
+			end
+		end
+
+	local VictimMessage = vgui.Create("DTextEntry", VictimInfos)
+	VictimMessage:SetMultiline(true)
+	VictimMessage:SetKeyboardInputEnabled(false)
+	VictimMessage:SetPos(0, 27)
+
+	local KillerMessage = vgui.Create("DTextEntry", VictimInfos)
+	KillerMessage:SetMultiline(true)
+	KillerMessage:SetKeyboardInputEnabled(false)
+
+		-- Begin GL slaynr, ban, and hlogs buttons for victim and reported
+		local function createStaffButtons(isReported)
+			local btnW, btnH = 65, 16
+			local buttons = {}
+			for _, label in ipairs({"SlayNr", "Ban", "History"}) do
+				local b = vgui.Create("DButton", VictimInfos)
+				b:SetText(label)
+				b:SetSize(btnW, btnH)
+				b:SetPos(0, 0)
+				b.DoClick = function()
+					local rep = Damagelog.SelectedReport
+					if not rep then return end
+					if label == "History" then
+						local sid = isReported and rep.attacker or rep.victim
+						if sid then RunConsoleCommand("ulx", "hlogsid", sid) end
+					elseif label == "SlayNr" then
+						if slayNrToolbar then
+							slayNrToolbar(isReported)
+						else
+							local sid = isReported and rep.attacker or rep.victim
+							if sid and ulx then RunConsoleCommand("ulx", "aslayid", sid, "1") end
+						end
+					elseif label == "Ban" then
+						if banToolbar then
+							banToolbar(isReported)
+						else
+							local sid = isReported and rep.attacker or rep.victim
+							if sid and ulx then RunConsoleCommand("ulx", "banid", sid, "60", "RDM") end
+						end
+					end
+				end
+				b.Think = function(selfBtn)
+					selfBtn:SetDisabled(not Damagelog.SelectedReport)
+				end
+				table.insert(buttons, b)
+			end
+
+			return buttons
+		end
+
+		local victimButtons = createStaffButtons(false)
+		local reportedButtons = createStaffButtons(true)
+
+		KillerMessage.PaintOver = function(self, w, h)
+			if self.DisableR then
+				surface.SetDrawColor(color_trablack)
+				surface.DrawRect(0, 0, w, h)
+				surface.SetFont("DL_ResponseDisabled")
+				local text = TTTLogTranslate(GetDMGLogLang, "ChatOpened")
+				local wt, ht = surface.GetTextSize(text)
+				wt = wt -- TODO why? there is no global or smth
+				surface.SetTextColor(color_white)
+				surface.SetTextPos(w / 2 - (wt - 14) / 2, h / 3 - ht / 2 + 10)
+				surface.DrawText(text)
+				surface.SetMaterial(Material("icon16/exclamation.png"))
+				surface.SetDrawColor(color_white)
+				surface.DrawTexturedRect(w / 2 - wt / 2 - 14, h / 3 - ht / 2 + 10, 16, 16)
+			end
+		end
+
+		self.CurrentReports:SetOuputs(VictimMessage, KillerMessage)
+		self.PreviousReports:SetOuputs(VictimMessage, KillerMessage)
+		Manager:AddItem(VictimInfos)
+
+		local VictimLogs
+		local VictimLogsForm
+
+		local Conclusion = vgui.Create("DPanel")
+
+		surface.SetFont("DL_Conclusion")
+		local cx, cy = surface.GetTextSize(TTTLogTranslate(GetDMGLogLang, "Conclusion") .. ":")
+		local cm = 5
+		Conclusion.PaintOver = function(panel, w, h)
+			if not panel.t1 then return end
+			surface.SetDrawColor(color_black)
+			surface.DrawLine(0, 0, w - 1, 0)
+			surface.DrawLine(w - 1, 0, w - 1, h - 1)
+			surface.DrawLine(w - 1, h - 1, 0, h - 1)
+			surface.DrawLine(0, h - 1, 0, 0)
+
+			surface.SetDrawColor(Color(225, 225, 225))
+			surface.DrawRect(1, 1, w - 2, h - 2)
+
+			surface.SetFont("DL_Conclusion")
+			surface.SetTextPos(cm, panel.t2 and (h / 3 - cy / 2) or (h / 2 - cy / 2))
+			surface.SetTextColor(Color(0, 108, 155))
+			surface.DrawText(TTTLogTranslate(GetDMGLogLang, "Conclusion") .. ":")
+
+			surface.SetFont("DL_ConclusionText")
+			surface.SetTextColor(color_black)
+			local ty1 = surface.GetTextSize(panel.t1)
+			surface.SetTextPos(cx + 2 * cm, panel.t2 and (h / 3 - cy / 2) or (h / 2 - cy / 2))
+			surface.DrawText(panel.t1)
+
+			if panel.t2 then
+				local ty2 = surface.GetTextSize(panel.t2)
+				surface.SetTextPos(cm, 2 * h / 3 - ty2 / 2)
+				surface.DrawText(panel.t2)
+			end
+		end
+
+		Conclusion.SetText = function(pnl, t)
+			pnl.Text = t
+			local t1, t2 = AdjustText(t, "DL_ConclusionText", pnl:GetWide() - cx - cm * 3)
+			pnl.t1 = t1
+			pnl.t2 = nil
+
+			if t2 then
+				pnl.t2 = t2
+				pnl:SetHeight(45)
+				KillerMessage:SetHeight(97)
+				VictimMessage:SetHeight(97)
+				VictimInfos:SetHeight(125)
+
+				if VictimLogs then
+					VictimLogs:SetHeight(215)
+				end
+			else
+				pnl:SetHeight(30)
+				KillerMessage:SetHeight(82)
+				VictimMessage:SetHeight(82)
+				VictimInfos:SetHeight(110)
+
+				if VictimLogs then
+					VictimLogs:SetHeight(245)
+				end
+			end
+
+			if VictimLogsForm then
+				VictimLogsForm:PerformLayout()
+			end
+
+			Manager:PerformLayout()
+		end
+
+		Conclusion.SetDefaultText = function(pnl)
+			pnl:SetText(TTTLogTranslate(GetDMGLogLang, "NoSelectedReport"))
+		end
+
+		Conclusion.ApplySchemeSettings = function(pnl)
+			if pnl.Text then
+				pnl:SetText(pnl.Text)
+			end
+		end
+
+		Conclusion:SetHeight(45)
+		self.CurrentReports.Conclusion = Conclusion
+		self.PreviousReports.Conclusion = Conclusion
+		Manager:AddItem(Conclusion)
+		VictimLogsForm = vgui.Create("DForm")
+		VictimLogsForm.SetExpanded = function() end
+		VictimLogsForm:SetLabel(TTTLogTranslate(GetDMGLogLang, "LogsBeforeVictim"))
+	VictimLogs = vgui.Create("DListView")
+	local colTime = VictimLogs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Time"))
+	colTime:SetFixedWidth(40)
+	local colType = VictimLogs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Type"))
+	colType:SetFixedWidth(40)
+	local colEvent = VictimLogs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Event"))
+	VictimLogs:SetHeight(300)
+
+		Damagelog.UpdateReportTexts = function()
+			local selected = Damagelog.SelectedReport
+
+			if not selected then
+				VictimInfos.isAdmin = false
+				VictimMessage:SetText("")
+				KillerMessage:SetText("")
+			else
+				VictimInfos.isAdmin = selected.adminReport
+
+				if selected.chatReport then
+					VictimMessage:SetText(TTTLogTranslate(GetDMGLogLang, "ChatOpenNoMessage"))
+				else
+					VictimMessage:SetText(selected.message)
+				end
+
+				KillerMessage:SetText(selected.response or TTTLogTranslate(GetDMGLogLang, "NoResponseYet"))
+			end
+
+			VictimLogs:Clear()
+
+			if selected and selected.logs then
+				Damagelog:SetListViewTable(VictimLogs, selected.logs, false)
+			end
+		end
+
+		Damagelog.DisableResponse = function(disable)
+			VictimInfos.DisableR = disable
+			KillerMessage.DisableR = disable
+		end
+
+		VictimLogsForm:AddItem(VictimLogs)
+		VictimLogsForm.Items[1]:DockPadding(0, 0, 0, 0)
+		Manager:AddItem(VictimLogsForm)
+		self.Tabs:AddSheet(TTTLogTranslate(GetDMGLogLang, "RDMManag"), Manager, "icon16/magnifier.png", false, false)
+		Conclusion:SetDefaultText()
+		self.CurrentReports:UpdateAllReports()
+		self.PreviousReports:UpdateAllReports()
+
+		local function layoutDynamic()
+			local menuW = IsValid(Damagelog.Menu) and Damagelog.Menu:GetWide() or x
+			local sheetW = menuW - 35
+			ReportsSheet:SetSize(sheetW, 160)
+			local btnGap = 5
+			SetState:SetPos(sheetW - SetState:GetWide(), 4)
+			CreateReport:SetPos(SetState.x - btnGap - CreateReport:GetWide(), 4)
+			ShowFinished:SetPos(math.max(5, sheetW/2 - 120), 7)
+			local half = math.floor(sheetW / 2)
+			VictimMessage:SetSize(half - 1, VictimMessage:GetTall()) -- right edge exactly at half
+			KillerMessage:SetPos(half, 27) -- start exactly where victim box ends / separator line is drawn
+			KillerMessage:SetSize(sheetW - half - 1, KillerMessage:GetTall()) -- leave 1px on far right for border
+			local eventW = sheetW - 40 - 40 - 15
+			if eventW < 100 then eventW = 100 end
+			colEvent:SetFixedWidth(eventW)
+			VictimInfos:SetWide(sheetW)
+			if VictimLogs then
+				VictimLogs:SetWide(sheetW)
+			end
+			Conclusion:SetWide(sheetW)
+
+			-- Reposition GL buttons
+			local pad = 6
+			local btnY = (27 - 16) / 2
+			local function positionGroup(btns, areaX, areaW)
+				local count = #btns
+				local totalW = count * btns[1]:GetWide() + (count + 1) * pad
+				local startX = areaX + areaW - totalW
+				for i, b in ipairs(btns) do
+					b:SetPos(startX + pad + (i - 1) * (b:GetWide() + pad), btnY)
+				end
+			end
+			positionGroup(victimButtons, 0, VictimMessage:GetWide())
+			positionGroup(reportedButtons, KillerMessage:GetX(), KillerMessage:GetWide())
+		end
+
+		Background.Think = layoutDynamic
+		layoutDynamic()
+	end
+end
+
+local PANEL = {}
+PANEL.MINUTES = 1
+PANEL.HOURS = 2
+PANEL.DAYS = 3
+
+function PANEL:Init()
+	self.Distance = 25
+	self.Dimension = 240
+	self:SetSize(500, 260)
+	self:SetDraggable(true)
+	self:Center()
+	self:MakePopup()
+	self.BanPanel = vgui.Create("DPanelList", self)
+	self.BanPanel:SetPos(self.Distance / 2, self.Distance * 1.5)
+	self.BanPanel:SetSize(self.Dimension / 3 + 20, self.Dimension / 3)
+	self.BanPanel:SetSpacing(5)
+	self.BanPanel:EnableHorizontal(false)
+	self.BanPanel:EnableVerticalScrollbar(true)
+	self.BanTime = vgui.Create("DTextEntry", self.BanPanel)
+	self.BanTime:SetSize(40 / 3.5, 20)
+	self.BanTime:SetText("50")
+	self.BanPanel:AddItem(self.BanTime)
+	self.Minutes = vgui.Create("DCheckBoxLabel")
+	self.Minutes:SetText(TTTLogTranslate(GetDMGLogLang, "Minutes"))
+	self.Minutes:SetValue(1)
+	self.Minutes:SizeToContents()
+	self.CurrentBanType = self.MINUTES
+
+	self.BanTime.OnChange = function(panel)
+		self:UpdateBanTime()
+	end
+
+	self.Minutes.OnChange = function(panel)
+		if panel:GetChecked() then
+			self.CurrentBanType = self.MINUTES
+			self.Hours:SetValue(0)
+			self.Days:SetValue(0)
+			self:UpdateBanTime()
+		end
+	end
+
+	self.BanPanel:AddItem(self.Minutes)
+	self.Hours = vgui.Create("DCheckBoxLabel")
+	self.Hours:SetText(TTTLogTranslate(GetDMGLogLang, "Hours"))
+	self.Hours:SetValue(0)
+	self.Hours:SizeToContents()
+
+	self.Hours.OnChange = function(panel)
+		if panel:GetChecked() then
+			self.CurrentBanType = self.HOURS
+			self.Minutes:SetValue(0)
+			self.Days:SetValue(0)
+			self:UpdateBanTime()
+		end
+	end
+
+	self.BanPanel:AddItem(self.Hours)
+	self.Days = vgui.Create("DCheckBoxLabel")
+	self.Days:SetText(TTTLogTranslate(GetDMGLogLang, "Days"))
+	self.Days:SetValue(0)
+	self.Days:SizeToContents()
+
+	self.Days.OnChange = function(panel)
+		if panel:GetChecked() then
+			self.CurrentBanType = self.DAYS
+			self.Hours:SetValue(0)
+			self.Minutes:SetValue(0)
+			self:UpdateBanTime()
+		end
+	end
+
+	self.BanPanel:AddItem(self.Days)
+	self.Reasons = {}
+
+	local reasons1 = {Damagelog.Ban_DefaultReason1, Damagelog.Ban_DefaultReason2, Damagelog.Ban_DefaultReason3, Damagelog.Ban_DefaultReason4, Damagelog.Ban_DefaultReason5, Damagelog.Ban_DefaultReason6}
+
+	self:AddReasonRow(self.Distance / 2 + self.Dimension / 2, self.Distance * 1.5, self.Dimension, self.Dimension / 2, reasons1)
+
+	local reasons2 = {Damagelog.Ban_DefaultReason7, Damagelog.Ban_DefaultReason8, Damagelog.Ban_DefaultReason9, Damagelog.Ban_DefaultReason10, Damagelog.Ban_DefaultReason11, Damagelog.Ban_DefaultReason12}
+
+	self:AddReasonRow(self.Distance + self.Dimension * 1.25, self.Distance * 1.5, self.Dimension, self.Dimension / 2, reasons2)
+	local DLabel = vgui.Create("DLabel", self)
+	DLabel:SetPos(self.Distance / 2, self.Dimension / 2.5 + 35)
+	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "GoingToBan"))
+	DLabel:SizeToContents()
+	self.NameLabel = vgui.Create("DLabel", self)
+	self.NameLabel:SetPos(self.Distance / 2 + 5, self.Dimension / 2.5 + 48)
+	self.NameLabel:SetSize(self.Distance * 4.65, 25)
+	self.NameLabel:SetText("")
+	self.TimeLabel = vgui.Create("DLabel", self)
+	self.TimeLabel:SetPos(self.Distance / 2, self.Dimension / 2.5 + 67)
+	self.TimeLabel:SetSize(self.Distance * 4.65, 25)
+	self.TimeLabel:SetText(TTTLogTranslate(GetDMGLogLang, "forspace"))
+	self.Reason = vgui.Create("DLabel", self)
+	self.Reason:SetPos(self.Distance / 2, self.Dimension * 2 / 3 + 31)
+	self.Reason:SetSize(self:GetWide() - self.Distance / 2, 30)
+	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason"))
+	self.CREnable = vgui.Create("DCheckBox", self)
+	self.CREnable:SetPos(self.Distance / 2 + self.Dimension / 2, self.Dimension * 2 / 3 + 5)
+	self.CREnable:SetValue(1)
+
+	function self.CREnable.OnChange(panel, reasonTxt)
+		self:UpdateReason()
+	end
+
+	self.CustomReason = vgui.Create("DTextEntry", self)
+	self.CustomReason:SetPos(self.Distance / 2 + self.Dimension / 2 + 25, self.Dimension * 2 / 3)
+	self.CustomReason:SetSize(self.Dimension * 1.5 - 35, 25)
+	self.CustomReason:SetText(TTTLogTranslate(GetDMGLogLang, "DefaultReason"))
+
+	self.CustomReason.OnChange = function(panel)
+		self:UpdateReason()
+	end
+
+	self.CustomReason.OnEnter = function(panel)
+		self.Button:DoClick()
+	end
+
+	self.CustomReason:RequestFocus()
+	self.CustomReason:SelectAll()
+	self.Button = vgui.Create("DButton", self)
+	self.Button:SetText(TTTLogTranslate(GetDMGLogLang, "rdmmanager_action_ban_submit"))
+	self.Button:SetPos(self.Distance / 4, self.Dimension * 2 / 3 + 60)
+	self.Button:SetSize(self:GetWide() - self.Distance / 2, 30)
+	self:UpdateBanTime()
+	self:UpdateReason()
+end
+
+function PANEL:UpdateBanTime()
+	local banTime = tonumber(self.BanTime:GetValue()) or 0
+
+	if banTime == 0 then
+		self.BanTimeNumber = 0
+		self.TimeLabel:SetText(TTTLogTranslate(GetDMGLogLang, "Permanently"))
+	elseif self.CurrentBanType == self.MINUTES then
+		self.BanTimeNumber = banTime
+		self.TimeLabel:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "ForMinutes"), banTime))
+	elseif self.CurrentBanType == self.HOURS then
+		self.BanTimeNumber = 60 * banTime
+		self.TimeLabel:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "ForHours"), banTime))
+	else
+		self.BanTimeNumber = 1440 * banTime
+		self.TimeLabel:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "ForDays"), banTime))
+	end
+end
+
+function PANEL:SetPlayer(reported, ply, steamid, report)
+	self:SetTitle(TTTLogTranslate(GetDMGLogLang, "rdmmanager_action_ban_title") .. " " .. (reported and report.attacker_nick or report.victim_nick))
+	self.NameLabel:SetText(reported and report.attacker_nick or report.victim_nick)
+
+	self.Button.DoClick = function(panel)
+		if IsValid(ply) then
+			if ulx then
+				RunConsoleCommand("ulx", "ban", ply:Nick(), tostring(self.BanTimeNumber), self.CurrentReason)
+			elseif sam then
+				RunConsoleCommand("sam", "ban", ply:Nick(), tostring(self.BanTimeNumber), self.CurrentReason)
+			elseif sAdmin then
+		local timeInSeconds = self.BanTimeNumber * 60
+				RunConsoleCommand("sa", "ban", ply:Nick(), tostring(timeInSeconds), self.CurrentReason) -- Fix it (time is specified in seconds)
+			elseif serverguard then
+				serverguard.command.Run("ban", false, ply:Nick(), self.BanTimeNumber, self.CurrentReason)
+			end
+
+			self.SetConclusion(ply:Nick(), self.TimeLabel:GetText(), self.CurrentReason)
+		else
+			if ulx then
+				RunConsoleCommand("ulx", "banid", (reported and report.attacker) or (not reported and report.victim), tostring(self.BanTimeNumber), self.CurrentReason)
+				self.SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), self.TimeLabel:GetText(), self.CurrentReason)
+			elseif sam then
+				RunConsoleCommand("sam", "banid", (reported and report.attacker) or (not reported and report.victim), tostring(self.BanTimeNumber), self.CurrentReason)
+				self.SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), self.TimeLabel:GetText(), self.CurrentReason)
+		elseif sAdmin then
+		local timeInSeconds = self.BanTimeNumber * 60
+		RunConsoleCommand("sa", "banid", (reported and report.attacker) or (not reported and report.victim), tostring(timeInSeconds), self.CurrentReason)
+		self.SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), self.TimeLabel:GetText(), self.CurrentReason)
+			else
+				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
+			end
+		end
+
+		self:Close()
+	end
+end
+
+function PANEL:UpdateReason()
+	local reason = ""
+	local CRAdded = false
+
+	if self.CREnable:GetChecked() then
+		reason = reason .. self.CustomReason:GetText()
+		CRAdded = true
+	end
+
+	local first = true
+
+	for index, label in ipairs(self.Reasons) do
+		if label:GetChecked() then
+			if CRAdded or not first then
+				reason = reason .. " + "
+				CRAdded = false
+			end
+
+			reason = reason .. label:GetText()
+
+			if first then
+				first = false
+			end
+		end
+	end
+
+	self.CurrentReason = reason
+	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason") .. reason)
+end
+
+function PANEL:PaintOver(w, h)
+	surface.SetDrawColor(color_white)
+	surface.DrawLine(self.Distance / 2 + self.Dimension / 2 - 10, self.Distance * 1.5 - 1, self.Distance / 2 + self.Dimension / 2 - 10, self.Distance * 1.5 + self.Dimension * 2 / 3 - 6)
+	surface.DrawLine(self.Distance / 2 - 5, self.Dimension / 2 + 5, self.Distance * 4.85, self.Dimension / 2 + 5)
+	surface.DrawLine(self.Distance / 2 - 5, self.Dimension * 2 / 3 + 31, w * 23 / 24 + 5, self.Dimension * 2 / 3 + 31)
+end
+
+function PANEL:AddReasonRow(x, y, w, h, reasons)
+	local DermaList = vgui.Create("DPanelList", self)
+	DermaList:SetPos(x, y)
+	DermaList:SetSize(w, h)
+	DermaList:SetSpacing(5)
+	DermaList:EnableHorizontal(false)
+	DermaList:EnableVerticalScrollbar(true)
+
+	for _, reason in ipairs(reasons) do
+		local checkBox = vgui.Create("DCheckBoxLabel")
+		checkBox:SetText(reason)
+		checkBox:SetValue(0)
+		checkBox:SizeToContents()
+
+		function checkBox.OnChange(panel)
+			if self.CustomReason:GetValue() == TTTLogTranslate(GetDMGLogLang, "DefaultReason") then
+				self.CREnable:SetChecked(false)
+			end
+
+			self:UpdateReason()
+		end
+
+		table.insert(self.Reasons, checkBox)
+		DermaList:AddItem(checkBox)
+	end
+end
+
+vgui.Register("RDM_Manager_Ban_Reason", PANEL, "DFrame")

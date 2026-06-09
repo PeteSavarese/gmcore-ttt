@@ -1,0 +1,28 @@
+services:
+  gmod-ttt-modded:
+    build:
+      context: ./gmod-ttt
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    network_mode: host
+    stop_grace_period: 1s # SRCDS doesn't even shut down nicely. Idk how to fix it so just set grace to 1s
+    user: "0:0" # Local testing only: run as root once to seed /home/container, then remove
+    env_file:
+      - ./gmod.env
+    volumes:
+      - ./gmod-ttt/addons:/home/container/garrysmod/addons
+      - ./gmod-ttt/data/gmcore/:/home/container/garrysmod/data/gmcore
+      - ./gmod-ttt/data/ulib/:/home/container/garrysmod/data/ulib # Keep group/perms persistent. Should not be edited in higher envs
+      - ./gmod-ttt/data/ulx/:/home/container/garrysmod/data/ulx # Keep group/perms persistent. Should not be edited in higher envs
+      - ./gmod-ttt/lua/bin:/home/container/garrysmod/lua/bin
+      - ./gmod-ttt/maps:/home/container/garrysmod/maps
+      - ./gmod-ttt/models:/home/container/garrysmod/models
+      - ./gmod-ttt/cfg:/home/container/garrysmod/cfg
+      - gmod-data:/home/container/garrysmod/data
+      - gmod-data:/home/container/garrysmod/sv.db
+    stdin_open: true
+    tty: true
+
+volumes:
+  gmod-data:
+    name: gmod-ttt-data

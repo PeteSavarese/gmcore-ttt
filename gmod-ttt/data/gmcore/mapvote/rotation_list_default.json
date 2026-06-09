@@ -1,0 +1,432 @@
+[
+	{
+		"map": "classified_map",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "cs_assault_ahg_v1",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "cs_desperados_2_ahg_v1",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "cs_parkhouse",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "de_crash_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "de_dust2_ahg_v6",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "de_fang_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_67thway_v14",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_airbus_b3",
+		"min": 0,
+		"max": 20
+	},
+	{
+		"map": "ttt_aircraft_v1b",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_albatross_fbeta",
+		"min": 20,
+		"max": 64
+	},
+	{
+		"map": "ttt_alps",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_bank_b13",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_bb_suburbia_b3",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_bb_teenroom_b2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_beachbar_ahg_v2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_bikinibottom_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_black_mesa_east_2019",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_bungalows_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_camel_fix2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_canyon_a4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_chaser_v2",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_clue_se",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_cod4_vacant_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_community_bowling_v5a",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_community_pool_2017_b4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_crackhouse_ahg_v5",
+		"min": 0,
+		"max": 18
+	},
+	{
+		"map": "ttt_cruise_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_crummycradle_b1fix",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_datmap_v2b",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_devoz_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_dolls",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_forest_final",
+		"min": 0,
+		"max": 24
+	},
+	{
+		"map": "ttt_hairyhouse_gl",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_heaven_ahg_v6",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_hotline_miami_ahg_v7",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_hotwireslum2016",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_innocentmotel_v1",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_intergalactic",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_island_2013",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_lego_fix",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_lifetheroof_b2_fix2017",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_magma_v2a",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_dinkledome",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mc_nuketown_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_metropolis",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraft_b5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_minecraftcity_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mountainresort_snow_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_museum_heist_v6",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mw2_rust_ahg_v4",
+		"min": 0,
+		"max": 18
+	},
+	{
+		"map": "ttt_mw2_scrapyard_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_mw2_terminal_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_northsea_ahg_v11",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_nuclear_power_v4_fix",
+		"min": 24,
+		"max": 64
+	},
+	{
+		"map": "ttt_oldruins",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_orange_v8_reworked",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_pelicantown_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_plaza_b7e",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_poolparty_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_portals_v9",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_rats_kitchen_gl",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_resort_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_richland_remix_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_rivercliff_ahg",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_rooftops_2016_v1",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_roy_the_ship",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_sands_ahg_v2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_sens_ahg_v2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_signal_v2",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_skatepark_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_skeld_ahg_v6",
+		"min": 0,
+		"max": 22
+	},
+	{
+		"map": "ttt_ski_resort_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_skyworld_dxm_ahg_v3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_summermansion_b3",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_terrortrain_2020_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_thething_ahg_v5",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_tilted_towers_ahg_v8",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_tokyodistrict_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_trappycottage_ahg",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_vessel",
+		"min": 16,
+		"max": 64
+	},
+	{
+		"map": "ttt_villa2_ahg_v6",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_volcano_ahg_v6",
+		"min": 0,
+		"max": 24
+	},
+	{
+		"map": "ttt_waterworld_2020_ahg_v4",
+		"min": 0,
+		"max": 0
+	},
+	{
+		"map": "ttt_xdea_ahg_v6",
+		"min": 0,
+		"max": 24
+	},
+	{
+		"map": "ttt_xmas_nipperhouse_gl",
+		"min": 0,
+		"max": 0
+	}
+]

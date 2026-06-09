@@ -1,0 +1,32 @@
+{
+	"2": [
+		[
+			"https://website.com/eor_music/traitor/ModestMouseDashboardOfficialMusicVideo.mp3",
+			"Innocent Artist 1 - Song 1"
+		],
+		[
+			"https://website.com/eor_music/traitor/Roundabout2003Remaster.mp3",
+			"Innocent Artist 2 - Song 2"
+		]
+	],
+	"3": [
+		[
+			"https://website.com/eor_music/innocent/SongeOne.mp3",
+			"Traitor Artist 1 - Song 1"
+		],
+		[
+			"https://website.com/eor_music/innocent/MilkyChanceStolenDanceOfficialVideo.mp3",
+			"Traitor Artist 2 - Song 2"
+		]
+	],
+	"4": [
+		[
+			"https://website.com/eor_music/timeout/SongeOne.mp3",
+			"Timeout Artist 1 - Song 1"
+		],
+		[
+			"https://website.com/eor_music/timeout/MilkyChanceStolenDanceOfficialVideo.mp3",
+			"Timeout Artist 2 - Song 2"
+		]
+	]
+}

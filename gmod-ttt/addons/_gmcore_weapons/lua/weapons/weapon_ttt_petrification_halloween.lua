@@ -1,0 +1,1160 @@
+-- CreateConVar("pb_texture", "models/props_wasteland/rockcliff02b", {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+-- if SERVER then
+--   CreateConVar("pb_autoremove", "1", {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_SERVER_CAN_EXECUTE})
+--   AddCSLuaFile()
+--   SWEP.Weight = 15
+-- end
+
+-- if CLIENT then
+-- 	SWEP.PrintName = "Medusa Totem"
+-- 	SWEP.Slot = 6
+
+-- 	SWEP.EquipMenuData = {
+-- 		type = "item_weapon",
+-- 		name = "Medusa Totem",
+-- 		desc = "Turn your enemies to stone!"
+-- 	}
+
+-- 	SWEP.Icon = "vgui/ttt/icon_gl_petrification_beam"
+-- end
+
+-- SWEP.Base = "weapon_tttbase"
+-- SWEP.Kind = WEAPON_EQUIP
+-- SWEP.CanBuy = {}
+-- SWEP.LimitedStock = true
+-- SWEP.AllowDrop = true
+-- SWEP.AutoSpawnable = false
+
+-- SWEP.ViewModel = "models/weapons/c_stunstick.mdl"
+-- SWEP.UseHands = true
+-- SWEP.HoldType = "slam"
+-- SWEP.WorldModel = "models/weapons/w_stunbaton.mdl"
+-- SWEP.Primary.ClipSize = -1
+-- SWEP.Primary.DefaultClip = -1
+-- SWEP.Primary.Automatic = true
+-- SWEP.Primary.Ammo = "None"
+-- SWEP.Secondary.ClipSize = 0
+-- SWEP.Secondary.DefaultClip = 0
+-- SWEP.Secondary.Automatic = true
+-- SWEP.Secondary.Ammo = "none"
+-- SWEP.ViewModelDefPos = Vector(0, 8, -6)
+-- SWEP.ViewModelDefAng = Vector(0, 0, 0)
+-- SWEP.ViewModelFOV = 72.628018067187
+-- SWEP.ViewModelFlip = false
+-- SWEP.ShowViewModel = true
+-- SWEP.ShowWorldModel = false
+-- SWEP.ViewModelBoneMods = {}
+-- SWEP.VElements = {
+--   ["statue"] = {
+--     type = "Model",
+--     model = "models/props_c17/gravestone_statue001a.mdl",
+--     bone = "ValveBiped.Bip01_R_Hand",
+--     rel = "",
+--     pos = Vector(2.568, 1.225, 0),
+--     angle = Angle(0, 0, 170.548),
+--     size = Vector(0.05, 0.071, 0.114),
+--     color = Color(255, 255, 255, 255),
+--     surpresslightning = false,
+--     material = "",
+--     skin = 0,
+--     bodygroup = {}
+--   },
+--   ["head"] = {
+--     type = "Model",
+--     model = "models/props_combine/breenbust.mdl",
+--     bone = "ValveBiped.Bip01_R_Hand",
+--     rel = "",
+--     pos = Vector(2.75, 3.878, -12.2),
+--     angle = Angle(0, 7.842, 173.511),
+--     size = Vector(0.215, 0.215, 0.215),
+--     color = Color(255, 255, 255, 255),
+--     surpresslightning = false,
+--     material = "",
+--     skin = 0,
+--     bodygroup = {}
+--   }
+-- }
+
+-- SWEP.WElements = {
+--   ["statue"] = {
+--     type = "Model",
+--     model = "models/props_c17/gravestone_statue001a.mdl",
+--     bone = "ValveBiped.Bip01_R_Hand",
+--     rel = "",
+--     pos = Vector(3.707, 3.309, 1.6),
+--     angle = Angle(0, 0, -160.047),
+--     size = Vector(0.071, 0.086, 0.096),
+--     color = Color(255, 255, 255, 255),
+--     surpresslightning = false,
+--     material = "",
+--     skin = 0,
+--     bodygroup = {}
+--   },
+--   ["head"] = {
+--     type = "Model",
+--     model = "models/props_combine/breenbust.mdl",
+--     bone = "ValveBiped.Bip01_R_Hand",
+--     rel = "",
+--     pos = Vector(4, 0.773, -7.8),
+--     angle = Angle(0, 0, -160.299),
+--     size = Vector(0.280, 0.280, 0.280),
+--     color = Color(255, 255, 255, 255),
+--     surpresslightning = false,
+--     material = "",
+--     skin = 0,
+--     bodygroup = {}
+--   }
+-- }
+
+-- -----------------------------------------------------
+-- SWEP.HighLaser_Time = 0
+-- SWEP.LowLaser_Time = 0
+-- SWEP.UnderwaterLaser_Time = 0
+-- SWEP.SparkTime = 0
+-- SWEP.AmmoTime = 0
+-- SWEP.AmmoTime2 = 0
+-- SWEP.PropDissolveTime = 0
+-- SWEP.DistanceTime = 0
+-- SWEP.ImpactTime = 0
+-- SWEP.ScreamTime = 0
+-- -----------------------------------------------------
+-- SWEP.HighDamage = 8
+-- SWEP.Radius = 100
+-- function SWEP:OnRestore()
+--   self.HighLaser_Time = 0
+--   self.LowLaser_Time = 0
+--   self.UnderwaterLaser_Time = 0
+--   self.SparkTime = 0
+--   self.AmmoTime = 0
+--   self.AmmoTime2 = 0
+--   self.PropDissolveTime = 0
+--   self.DistanceTime = 0
+--   self.ImpactTime = 0
+--   self.ScreamTime = 0
+--   self.ChargeFrac = 1
+--   self.NextHitEffect = CurTime()
+--   self.HighDamage = 8
+--   self.Radius = 100
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() then
+--     local traceeffect = EffectData()
+--     traceeffect:SetEntity(self.Weapon)
+--     util.Effect("sbeam_effect2", traceeffect)
+--   end
+-- end
+
+-- if CLIENT then
+--   killicon.Add("weapon_petrificationbeam", "icon/petrification_icon", Color(255, 255, 255, 255))
+--   SWEP.WepSelectIcon = Material("icon/petrification_beam.png")
+--   SWEP.BounceWeaponIcon = false
+--   function SWEP:DrawWeaponSelection(x, y, wide, tall, alpha)
+--     -- Set us up the texture
+--     surface.SetDrawColor(255, 255, 255, alpha)
+--     surface.SetMaterial(self.WepSelectIcon)
+--     -- Lets get a sin wave to make it bounce
+--     local fsin = 0
+--     if self.BounceWeaponIcon == true then fsin = math.sin(CurTime() * 10) * 5 end
+--     -- Borders
+--     y = y + 1
+--     x = x + 40
+--     wide = wide + 50
+--     -- Draw that mother
+--     surface.DrawTexturedRect(x + fsin, y - fsin, wide / 1.7 - fsin * 2, (wide / 2) + fsin)
+--     -- Draw weapon info box
+--     self:PrintWeaponInfo(x + wide + 20, y + tall * 0.95, alpha)
+--   end
+-- end
+
+-- hook.Add("PlayerDeath", "plydeathfixpetrification", function(ply)
+--   ply:SetNWBool("PetrifiedToDeath", false)
+--   ply:SetNWBool("PetrifiedNoDraw", true)
+--   ply:SetNWFloat("PetrifiedAmount", 0)
+-- end)
+
+-- hook.Add("PlayerSilentDeath", "plydeathfixpetrification2", function(ply)
+--   ply:SetNWBool("PetrifiedToDeath", false)
+--   ply:SetNWBool("PetrifiedNoDraw", true)
+--   ply:SetNWFloat("PetrifiedAmount", 0)
+-- end)
+
+-- if CLIENT then
+--   function RockEffectNPC()
+--     for k, v in pairs(ents.GetAll()) do
+--       if IsValid(v) and v:GetNWFloat("PetrifiedAmount") > 0 then
+--         render.MaterialOverride(Material(GetConVar("pb_texture"):GetString()))
+--         local Matrix = Matrix()
+--         Matrix:Scale(Vector(1, 1, 1))
+--         v:EnableMatrix("RenderMultiply", Matrix)
+--         local normal = -v:GetUp()
+--         local position = normal:Dot(v:GetPos() + v:GetUp() * v:GetNWFloat("PetrifiedAmount"))
+--         local oldEC = render.EnableClipping(true)
+--         render.PushCustomClipPlane(normal, position)
+--         v:DrawModel()
+--         render.PopCustomClipPlane()
+--         render.EnableClipping(oldEC)
+--         v:DisableMatrix("RenderMultiply")
+--         render.MaterialOverride()
+--       end
+--     end
+--   end
+
+--   hook.Add("PostDrawOpaqueRenderables", "RockEffectNPC", RockEffectNPC)
+--   function RockEffectNPC2()
+--     for k, v in pairs(ents.GetAll()) do
+--       if IsValid(v) and v:GetNWFloat("PetrifiedAmount") > 0 and not v:IsPlayer() then
+--         v:SetNoDraw(true)
+--         local normal = v:GetUp()
+--         local position = normal:Dot(v:GetPos() + v:GetUp() * v:GetNWFloat("PetrifiedAmount"))
+--         local oldEC = render.EnableClipping(true)
+--         render.PushCustomClipPlane(normal, position)
+--         v:DrawModel()
+--         render.PopCustomClipPlane()
+--         render.EnableClipping(oldEC)
+--       end
+
+--       if IsValid(v) and v:GetNWBool("PetrifiedNoDraw") and v:GetNWFloat("PetrifiedAmount") <= 0 then v:SetNoDraw(false) end
+--     end
+--   end
+
+--   hook.Add("PostDrawOpaqueRenderables", "RockEffectNPC2", RockEffectNPC2)
+-- end
+
+-- function SWEP:Reload()
+-- end
+
+-- function SWEP:DissolveEntity(ent, type)
+--   local entnametodissolve = "entname" .. ent:EntIndex()
+--   ent:SetKeyValue("targetname", entnametodissolve)
+--   local dissolver = ents.Create("env_entity_dissolver")
+--   dissolver:SetPos(ent:GetPos())
+--   dissolver:SetKeyValue("target", entnametodissolve)
+--   dissolver:Spawn()
+--   dissolver:SetOwner(self:GetOwner())
+--   dissolver:SetPhysicsAttacker(self:GetOwner())
+--   dissolver:SetKeyValue("dissolvetype", tonumber(type))
+--   dissolver:Fire("Dissolve", entnametodissolve, 0)
+--   dissolver:Fire("kill", "", 0.1)
+-- end
+
+-- function SWEP:Think()
+--   if not (self:GetNextPrimaryFire() < CurTime()) then return end
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() and self:GetOwner():KeyReleased(IN_ATTACK) then
+--     if self.High then
+--       self.High:ChangeVolume(0, 0.02)
+--       self.High:Stop()
+--       self.High = nil
+--     end
+
+--     if self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then self:GetOwner():SetAnimation(PLAYER_ATTACK1) end
+--   elseif IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() and self:GetOwner():KeyReleased(IN_ATTACK2) then
+--     if self.Low then
+--       self.Low:ChangeVolume(0, 0.02)
+--       self.Low:Stop()
+--       self.Low = nil
+--     end
+
+--     if self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then self:GetOwner():SetAnimation(PLAYER_ATTACK1) end
+--   end
+
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() then
+--     if self:GetOwner():KeyDown(IN_ATTACK) then
+--       self:SetNWBool("de_high", true)
+--     else
+--       self:SetNWBool("de_high", false)
+--       if self.High then
+--         self.High:ChangeVolume(0, 0.02)
+--         self.High:Stop()
+--         self.High = nil
+--       end
+
+--       if self.Low then
+--         self.Low:ChangeVolume(0, 0.02)
+--         self.Low:Stop()
+--         self.Low = nil
+--       end
+--     end
+
+--     if self:GetNWBool("de_high") == true and self:GetOwner():KeyDown(IN_ATTACK) and self.HighLaser_Time < CurTime() then
+--       local tr = self:GetOwner():GetEyeTrace()
+--       local vm = self:GetOwner():GetViewModel()
+--       vm:SetSequence(1)
+--       vm:SetPlaybackRate(3)
+--       if IsValid(tr.Entity) and tr.Entity and SERVER and self.HighLaser_Time < CurTime() then
+--         if IsValid(tr.Entity:GetPhysicsObject()) then
+--           if not tr.Entity:IsNPC() and not tr.Entity:IsPlayer() then
+--             if tr.Entity:GetPhysicsObject():IsMotionEnabled() then tr.Entity:GetPhysicsObject():SetMaterial("boulder") end
+--             local trent = tr.Entity
+--             local tridx = "tridx" .. trent:EntIndex()
+--             timer.Create(tridx, 0.01, 0, function()
+--               if IsValid(trent) and IsValid(trent:GetPhysicsObject()) then
+--                 trent:GetPhysicsObject():ApplyForceCenter(VectorRand() * trent:GetPhysicsObject():GetMass() / 100)
+--               else
+--                 timer.Remove(tridx)
+--               end
+--             end)
+
+--             tr.Entity:SetNWBool("PetrifiedNoDraw", true)
+--             if tr.Entity:GetNWFloat("PetrifiedAmount") >= tr.Entity:OBBMaxs().z then
+--               tr.Entity:SetMaterial(GetConVar("pb_texture"):GetString())
+--               tr.Entity:SetNWBool("PetrifiedToDeath", true)
+--               if not tr.Entity:IsVehicle() then self:MakeStatue(tr.Entity) end
+--             end
+
+--             if not tr.Entity:GetNWBool("PetrifiedToDeath") then
+--               tr.Entity:SetNWFloat("PetrifiedAmount", tr.Entity:GetNWFloat("PetrifiedAmount") + 0.8)
+--             else
+--               tr.Entity:SetNWFloat("PetrifiedAmount", 0)
+--             end
+--           end
+--         end
+
+--         self.HighLaser_Time = CurTime() + 0.01
+--       end
+
+--       if SERVER and self.PropDissolveTime < CurTime() then
+--         for k, v in pairs(ents.FindInSphere(tr.HitPos, self.Radius)) do
+--           if IsValid(v) and IsValid(tr.Entity) and v == tr.Entity then
+--             v:SetNWBool("PetrifiedNoDraw", true)
+--             if v:GetNWFloat("PetrifiedAmount") >= v:OBBMaxs().z and (v:IsNPC() or v:IsPlayer() or v:IsNextBot()) then
+--               v:SetNWBool("PetrifiedToDeath", true)
+--               v:SetShouldServerRagdoll(false)
+--               v:Health(0)
+--               v:TakeDamage(50, self:GetOwner(), self)
+--               v:EmitSound("physics/concrete/boulder_impact_hard" .. math.random(1, 4) .. ".wav")
+--               self:MakeStatue(v)
+--               v:Remove()
+--             end
+
+--             if not v:GetNWBool("PetrifiedToDeath") then
+--               v:SetNWFloat("PetrifiedAmount", v:GetNWFloat("PetrifiedAmount") + 0.8)
+--             else
+--               v:SetNWFloat("PetrifiedAmount", 0)
+--             end
+
+--             if v:IsPlayer() and v:Alive() then
+--               v:ViewPunch(Angle(math.Rand(-1, -1), math.Rand(-1, 1), 0))
+--               v:EmitSound("player/pl_impact_flesh-1.wav", 100, 100)
+--             end
+--           end
+--         end
+
+--         self.PropDissolveTime = CurTime() + 0.01
+--       end
+--     end
+--   end
+-- end
+
+-- function SWEP:MakeStatue(what)
+--   if not IsValid(what) then return end
+--   if what.Welds then return end
+--   if not what:GetModel():match("models/.*%.mdl") then return end
+
+--   if what:IsNPC() then what:SetSchedule(SCHED_WAIT_FOR_SCRIPT) end
+
+--   -- Handle non-player/NPC/NextBot entities as before
+--   if not (what:IsPlayer() or what:IsNPC() or what:IsNextBot()) then
+--     local bones = what:GetPhysicsObjectCount()
+--     what.Welds = what.Welds or {}
+--     for bone = 1, bones do
+--       local bone1 = bone - 1
+--       local bone2 = bones - bone
+--       if not what.Welds[bone2] then
+--         local weld = constraint.Weld(what, what, bone1, bone2, 0)
+--         if weld then
+--           what.Welds[bone1] = weld
+--           what:DeleteOnRemove(weld)
+--         end
+--       end
+--       local weld2 = constraint.Weld(what, what, bone1, 0, 0)
+--       if weld2 then
+--         what.Welds[bone1 + bones] = weld2
+--         what:DeleteOnRemove(weld2)
+--       end
+--     end
+--     what:SetMaterial(GetConVar("pb_texture"):GetString())
+--     what:SetPhysicsAttacker(self:GetOwner())
+--     return
+--   end
+
+--   -- Just kill them and let TTT create the ragdoll. Hook is used on "TTTOnCorpseCreated" to modify the corpse afterwards
+--   if what:IsPlayer() then
+--     local ply = what
+--     if SERVER and ply:Alive() then
+--       ply:SetShouldServerRagdoll(false)
+
+--       -- Attribute kill to the attacker
+--       local dmginfo = DamageInfo()
+--       dmginfo:SetDamage(ply:GetMaxHealth() + 10)
+--       dmginfo:SetDamageType(DMG_GENERIC)
+--       dmginfo:SetAttacker(IsValid(self:GetOwner()) and self:GetOwner() or ply)
+--       dmginfo:SetInflictor(IsValid(self) and self or ply)
+
+--       ply:TakeDamageInfo(dmginfo)
+--     end
+--     return
+--   end
+
+--   -- For NPCs/NextBots: just remove them (or optionally spawn a prop if you want)
+--   if what:IsNPC() or what:IsNextBot() then
+--     what:Remove()
+--     return
+--   end
+-- end
+
+-- function SWEP:PrimaryAttack()
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() and self:GetOwner():KeyDown(IN_ATTACK) and self.AmmoTime < CurTime() then
+--     if not self.High then
+--       self.High = CreateSound(self:GetOwner(), "ambient/energy/force_field_loop1.wav")
+--       self.High:PlayEx(0.8, 40)
+--       if self.ScreamTime < CurTime() then self.ScreamTime = CurTime() + 10 end
+--     end
+
+--     self.AmmoTime = CurTime() + 0.08
+--     self.AmmoTime2 = CurTime() + 1
+--   end
+-- end
+
+-- function SWEP:Deploy()
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() then
+--     self:SendWeaponAnim(ACT_VM_DRAW)
+--     self:SetNextPrimaryFire(CurTime() + self:SequenceDuration())
+--   end
+
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():Alive() then
+--     local traceeffect = EffectData()
+--     traceeffect:SetEntity(self.Weapon)
+--     util.Effect("sbeam_effect2", traceeffect)
+--   end
+-- end
+
+-- function SWEP:Holster()
+--   self:SetNWBool("de_high", false)
+--   if IsValid(self.delight) and SERVER then self.delight:Remove() end
+--   if self.High then
+--     self.High:Stop()
+--     self.High = nil
+--   end
+
+--   if CLIENT and IsValid(self:GetOwner()) then
+--     local vm = self:GetOwner():GetViewModel()
+--     if IsValid(vm) then self:ResetBonePositions(vm) end
+--   end
+
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():IsPlayer() and IsValid(self:GetOwner():GetViewModel()) then self:GetOwner():GetViewModel():SetMaterial("") end
+--   self:SetMaterial("")
+--   return true
+-- end
+
+-- function SWEP:OnRemove()
+--   if CLIENT and IsValid(self:GetOwner()) then
+--     local vm = self:GetOwner():GetViewModel()
+--     if IsValid(vm) then self:ResetBonePositions(vm) end
+--   end
+
+--   self:SetNWBool("de_high", false)
+--   if IsValid(self.delight) and SERVER then self.delight:Remove() end
+--   if self.High then
+--     self.High:Stop()
+--     self.High = nil
+--   end
+
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():IsPlayer() and IsValid(self:GetOwner():GetViewModel()) then self:GetOwner():GetViewModel():SetMaterial("") end
+--   self:SetMaterial("")
+-- end
+
+-- function SWEP:OnDrop()
+--   if CLIENT and IsValid(self:GetOwner()) then
+--     local vm = self:GetOwner():GetViewModel()
+--     if IsValid(vm) then self:ResetBonePositions(vm) end
+--   end
+
+--   self:SetNWBool("de_high", false)
+--   if self.High then
+--     self.High:Stop()
+--     self.High = nil
+--   end
+
+--   if IsValid(self) and IsValid(self:GetOwner()) and self:GetOwner():IsPlayer() and IsValid(self:GetOwner():GetViewModel()) then self:GetOwner():GetViewModel():SetMaterial("") end
+--   self:SetMaterial("")
+-- end
+
+-- function SWEP:DoImpactEffect(tr, nDamageType)
+--   return true
+-- end
+
+-- function SWEP:SecondaryAttack()
+-- end
+
+-- --[[*******************************************************
+-- 	SWEP Construction Kit base code
+-- 		Created by Clavus
+-- 	Available for public use, thread at:
+-- 	   facepunch.com/threads/1032378
+
+
+-- 	DESCRIPTION:
+-- 		This script is meant for experienced scripters
+-- 		that KNOW WHAT THEY ARE DOING. Don't come to me
+-- 		with basic Lua questions.
+
+-- 		Just copy into your SWEP or SWEP base of choice
+-- 		and merge with your own code.
+
+-- 		The SWEP.VElements, SWEP.WElements and
+-- 		SWEP.ViewModelBoneMods tables are all optional
+-- 		and only have to be visible to the client.
+-- *******************************************************]]
+-- function SWEP:Initialize()
+--   -- other initialize code goes here
+--   self.ChargeFrac = 1
+--   self.NextHitEffect = CurTime()
+--   self:SetWeaponHoldType(self.HoldType)
+--   if CLIENT then
+--     -- Create a new table for every weapon instance
+--     self.VElements = table.FullCopy(self.VElements)
+--     self.WElements = table.FullCopy(self.WElements)
+--     self.ViewModelBoneMods = table.FullCopy(self.ViewModelBoneMods)
+--     self:CreateModels(self.VElements) -- create viewmodels
+--     self:CreateModels(self.WElements) -- create worldmodels
+--     -- init view model bone build function
+--     if IsValid(self:GetOwner()) then
+--       local vm = self:GetOwner():GetViewModel()
+--       if IsValid(vm) then
+--         self:ResetBonePositions(vm)
+--         -- Init viewmodel visibility
+--         if self.ShowViewModel == nil or self.ShowViewModel then
+--           vm:SetColor(Color(255, 255, 255, 255))
+--         else
+--           -- we set the alpha to 1 instead of 0 because else ViewModelDrawn stops being called
+--           vm:SetColor(Color(255, 255, 255, 1))
+--           -- ^ stopped working in GMod 13 because you have to do Entity:SetRenderMode(1) for translucency to kick in
+--           -- however for some reason the view model resets to render mode 0 every frame so we just apply a debug material to prevent it from drawing
+--           vm:SetMaterial("Debug/hsv")
+--         end
+--       end
+--     end
+--   end
+-- end
+
+-- if CLIENT then
+--   function SWEP:GetViewModelPosition(pos, ang, inv, mul)
+--     local mul = 0
+--     --this is always applied
+--     local DefPos = self.ViewModelDefPos
+--     local DefAng = self.ViewModelDefAng
+--     if DefAng then
+--       ang = ang * 1
+--       ang:RotateAroundAxis(ang:Right(), DefAng.x)
+--       ang:RotateAroundAxis(ang:Up(), DefAng.y)
+--       ang:RotateAroundAxis(ang:Forward(), DefAng.z)
+--     end
+
+--     if DefPos then
+--       local Right = ang:Right()
+--       local Up = ang:Up()
+--       local Forward = ang:Forward()
+--       pos = pos + DefPos.x * Right
+--       pos = pos + DefPos.y * Forward
+--       pos = pos + DefPos.z * Up
+--     end
+--     return pos, ang
+--   end
+
+--   local LaserMaterial = Material("effects/laser_citadel1")
+--   local MuzzleMaterial = CreateMaterial("LaserGunMuzzle2", "UnlitGeneric", {
+--     ["$basetexture"] = "sprites/redglow1",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleMaterial2 = CreateMaterial("LaserGunMuzzle3", "UnlitGeneric", {
+--     ["$basetexture"] = "sprites/yellowflare",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleMaterial4 = CreateMaterial("LaserGunMuzzle5", "UnlitGeneric", {
+--     ["$basetexture"] = "effects/exit1",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleMaterialhit = CreateMaterial("LaserGunMuzzle6", "UnlitGeneric", {
+--     ["$basetexture"] = "sprites/yellowflare",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleColor = Color(0, 255, 0)
+--   ------------------------------------------------------------------------------------------------------
+--   --    Purpose: draw the beam effect, sparks and decals
+--   ------------------------------------------------------------------------------------------------------
+--   function SWEP:DrawLaserBeam(viewSpace)
+--     if not (self:GetNextPrimaryFire() < CurTime()) then return end
+--     if not IsValid(self:GetOwner()) then return end
+
+--     -- get the proper muzzle attachment
+--     local weaponModel = viewSpace and self:GetOwner():GetViewModel() or self
+--     local muzzle = weaponModel:GetAttachment(2)
+--     if muzzle == nil then return end
+
+--     local tr = self:GetOwner():GetEyeTraceNoCursor()
+--     MuzzleColor.a = self.ChargeFrac * 255
+--     local muzzleSize = 16 + math.Rand(-self.ChargeFrac, self.ChargeFrac)
+
+--   if self:GetNWBool("de_high") then muzzleSize = muzzleSize * 2 end
+--     local muzzleOffset = muzzle.Ang:Forward()
+--     muzzleOffset:Mul((weaponModel == self) and 0 or 8)
+--     local muzzlePos = muzzle.Pos + muzzleOffset
+
+--     if self:GetNWBool("de_high") then
+--       render.SetMaterial(MuzzleMaterial)
+--       render.DrawSprite(muzzlePos, muzzleSize, muzzleSize, MuzzleColor)
+--       render.DrawSprite(muzzlePos, muzzleSize, muzzleSize, MuzzleColor)
+--       render.DrawSprite(tr.HitPos, math.random(16, 64), math.random(16, 64), MuzzleColor)
+--       render.DrawSprite(tr.HitPos, math.random(16, 64), math.random(16, 64), MuzzleColor)
+--       render.SetMaterial(MuzzleMaterial4)
+--       render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--       render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--       render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--       render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--       render.SetMaterial(MuzzleMaterial2)
+--       render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--       render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--       render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--       render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--       render.SetMaterial(MuzzleMaterialhit)
+--       render.DrawSprite(tr.HitPos, math.random(12, 24), math.random(12, 24), color_white)
+--       render.DrawSprite(tr.HitPos, math.random(12, 24), math.random(12, 24), color_white)
+--       render.SetMaterial(LaserMaterial)
+--       render.DrawBeam(muzzlePos, tr.HitPos, math.random(5, 10), CurTime() * 200, CurTime() * 200, Color(0, 255, 0))
+--       render.DrawBeam(muzzlePos, tr.HitPos, math.random(5, 10), CurTime() * 200, CurTime() * 200, Color(0, 255, 0))
+--       local increment = tr.HitPos - muzzlePos
+--       local distance = increment:Length()
+--       local num = math.Clamp(math.floor(distance / 40), 8, 100)
+--       increment:Normalize()
+--       increment:Mul(distance / num)
+--       render.StartBeam(num + 1)
+--       -- don't add a wiggle to the first cp
+--       render.AddBeam(muzzlePos, 5, 1)
+--       for i = 1, num do
+--         local vectorRand = VectorRand()
+--         vectorRand:Mul(1.1)
+--         muzzlePos:Add(increment)
+--         render.AddBeam(muzzlePos + vectorRand, 5, 1)
+--       end
+
+--       render.EndBeam()
+--       if CurTime() > self.NextHitEffect then
+--         self:DoHitEffects(tr)
+--         self.NextHitEffect = CurTime() + 0.01
+--       end
+--     end
+--     return muzzle, tr
+--   end
+
+--   ------------------------------------------------------------------------------------------------------
+--   --    Purpose: draw the beam in view model space
+--   ------------------------------------------------------------------------------------------------------
+--   function SWEP:DoHitEffects(tr)
+--     --[[
+--     local em = ParticleEmitter(tr.HitPos,false)
+-- 		for i=0,5 do
+-- 			local pt2 = em:Add( "effects/spark", tr.HitPos + VectorRand()*2)
+-- 			pt2:SetVelocity((VectorRand()*10)*15)
+-- 			pt2:SetDieTime( math.Rand( 2, 3 ) )
+-- 			pt2:SetStartAlpha( 255 )
+-- 			pt2:SetStartSize( math.Rand( 2, 5 ) )
+-- 			pt2:SetEndSize( 0 )
+-- 			pt2:SetRoll( 0 )
+-- 			local randxm = math.Rand(7,9 )
+-- 			pt2:SetStartLength( randxm)
+--             pt2:SetEndLength( randxm - 2 )
+-- 			pt2:SetColor( 255, 255, 255 )
+-- 			pt2:SetGravity( Vector( 0, 0, -math.Rand(500,800) ) )
+-- 			pt2:SetCollide( true )
+-- 			pt2:SetBounce( 0.3 )
+-- 			pt2:SetAirResistance( 50 )
+-- 		end
+-- 	--]]
+--   end
+
+--   local function PostPlayerDraw(pl)
+--     local activeWeapon = pl:GetActiveWeapon()
+--     if activeWeapon.DrawLaserBeam then
+--       local muzzle, tr = activeWeapon:DrawLaserBeam(false)
+--       -- make sure the beam always draws
+--       -- TODO: this breaks the player's shadow
+--       if muzzle ~= nil then activeWeapon:SetRenderBoundsWS(muzzle.Pos, tr.HitPos) end
+--     end
+--   end
+
+--   hook.Add("PostPlayerDraw", "StalkerBeam_PostPlayerDraw", PostPlayerDraw)
+
+--   SWEP.vRenderOrder = nil
+
+--   function SWEP:ViewModelDrawn()
+--     self:DrawLaserBeam(true)
+--     local vm = self:GetOwner():GetViewModel()
+--     if not IsValid(vm) then return end
+--     if not self.VElements then return end
+--     self:UpdateBonePositions(vm)
+--     if not self.vRenderOrder then
+--       -- we build a render order because sprites need to be drawn after models
+--       self.vRenderOrder = {}
+--       for k, v in pairs(self.VElements) do
+--         if v.type == "Model" then
+--           table.insert(self.vRenderOrder, 1, k)
+--         elseif v.type == "Sprite" or v.type == "Quad" then
+--           table.insert(self.vRenderOrder, k)
+--         end
+--       end
+--     end
+
+--     self:GetOwner():GetViewModel():SetMaterial("hud/800corner1")
+--     for k, name in ipairs(self.vRenderOrder) do
+--       local v = self.VElements[name]
+--       if not v then
+--         self.vRenderOrder = nil
+--         break
+--       end
+
+--       if v.hide then continue end
+--       local model = v.modelEnt
+--       local sprite = v.spriteMaterial
+--       if not v.bone then continue end
+--       local pos, ang = self:GetBoneOrientation(self.VElements, v, vm)
+--       if not pos then continue end
+--       if v.type == "Model" and IsValid(model) then
+--         model:SetPos(pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z)
+--         ang:RotateAroundAxis(ang:Up(), v.angle.y)
+--         ang:RotateAroundAxis(ang:Right(), v.angle.p)
+--         ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+--         model:SetAngles(ang)
+--         --model:SetModelScale(v.size)
+--         local matrix = Matrix()
+--         matrix:Scale(v.size)
+--         model:EnableMatrix("RenderMultiply", matrix)
+--         if v.material == "" then
+--           model:SetMaterial("")
+--         elseif model:GetMaterial() ~= v.material then
+--           model:SetMaterial(v.material)
+--         end
+
+--         if v.skin and v.skin ~= model:GetSkin() then model:SetSkin(v.skin) end
+--         if v.bodygroup then
+--           for k, v in pairs(v.bodygroup) do
+--             if model:GetBodygroup(k) ~= v then model:SetBodygroup(k, v) end
+--           end
+--         end
+
+--         if v.surpresslightning then render.SuppressEngineLighting(true) end
+--         render.SetColorModulation(v.color.r / 255, v.color.g / 255, v.color.b / 255)
+--         render.SetBlend(v.color.a / 255)
+--         local normal = model:GetUp()
+--         local position = normal:Dot(model:GetPos() + model:GetUp() * 0.8)
+--         local oldEC = render.EnableClipping(true)
+--         render.PushCustomClipPlane(normal, position)
+--         model:DrawModel()
+--         render.PopCustomClipPlane()
+--         render.EnableClipping(oldEC)
+--         render.SetBlend(1)
+--         render.SetColorModulation(1, 1, 1)
+--         if v.surpresslightning then render.SuppressEngineLighting(false) end
+--       elseif v.type == "Sprite" and sprite then
+--         local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+--         render.SetMaterial(sprite)
+--         render.DrawSprite(drawpos, v.size.x, v.size.y, v.color)
+--       elseif v.type == "Quad" and v.draw_func then
+--         local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+--         ang:RotateAroundAxis(ang:Up(), v.angle.y)
+--         ang:RotateAroundAxis(ang:Right(), v.angle.p)
+--         ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+--         cam.Start3D2D(drawpos, ang, v.size)
+--         v.draw_func(self)
+--         cam.End3D2D()
+--       end
+--     end
+--   end
+
+--   SWEP.wRenderOrder = nil
+--   function SWEP:DrawWorldModel()
+--     if self.ShowWorldModel == nil or self.ShowWorldModel then self:DrawModel() end
+--     if not self.WElements then return end
+--     if not self.wRenderOrder then
+--       self.wRenderOrder = {}
+--       for k, v in pairs(self.WElements) do
+--         if v.type == "Model" then
+--           table.insert(self.wRenderOrder, 1, k)
+--         elseif v.type == "Sprite" or v.type == "Quad" then
+--           table.insert(self.wRenderOrder, k)
+--         end
+--       end
+--     end
+
+--     if IsValid(self:GetOwner()) then
+--       bone_ent = self:GetOwner()
+--     else
+--       -- when the weapon is dropped
+--       bone_ent = self
+--     end
+
+--     for k, name in pairs(self.wRenderOrder) do
+--       local v = self.WElements[name]
+--       if not v then
+--         self.wRenderOrder = nil
+--         break
+--       end
+
+--       if v.hide then continue end
+--       local pos, ang
+--       if v.bone then
+--         pos, ang = self:GetBoneOrientation(self.WElements, v, bone_ent)
+--       else
+--         pos, ang = self:GetBoneOrientation(self.WElements, v, bone_ent, "ValveBiped.Bip01_R_Hand")
+--       end
+
+--       if not pos then continue end
+--       local model = v.modelEnt
+--       local sprite = v.spriteMaterial
+--       if v.type == "Model" and IsValid(model) then
+--         model:SetPos(pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z)
+--         ang:RotateAroundAxis(ang:Up(), v.angle.y)
+--         ang:RotateAroundAxis(ang:Right(), v.angle.p)
+--         ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+--         model:SetAngles(ang)
+--         --model:SetModelScale(v.size)
+--         local matrix = Matrix()
+--         matrix:Scale(v.size)
+--         model:EnableMatrix("RenderMultiply", matrix)
+--         if v.material == "" then
+--           model:SetMaterial("")
+--         elseif model:GetMaterial() ~= v.material then
+--           model:SetMaterial(v.material)
+--         end
+
+--         if v.skin and v.skin ~= model:GetSkin() then model:SetSkin(v.skin) end
+--         if v.bodygroup then
+--           for k, v in pairs(v.bodygroup) do
+--             if model:GetBodygroup(k) ~= v then model:SetBodygroup(k, v) end
+--           end
+--         end
+
+--         if v.surpresslightning then render.SuppressEngineLighting(true) end
+--         local normal = model:GetUp()
+--         if v.modelEnt:GetModel() == "models/props_combine/breenbust.mdl" then
+--           local position = normal:Dot(model:GetPos() + model:GetUp() * 0.9)
+--           local oldEC = render.EnableClipping(true)
+--           render.PushCustomClipPlane(normal, position)
+--         end
+
+--         model:DrawModel()
+--         if v.modelEnt:GetModel() == "models/props_combine/breenbust.mdl" then
+--           render.PopCustomClipPlane()
+--           render.EnableClipping(oldEC)
+--         end
+
+--         if v.surpresslightning then render.SuppressEngineLighting(false) end
+--       elseif v.type == "Sprite" and sprite then
+--         local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+--         render.SetMaterial(sprite)
+--         render.DrawSprite(drawpos, v.size.x, v.size.y, v.color)
+--       elseif v.type == "Quad" and v.draw_func then
+--         local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+--         ang:RotateAroundAxis(ang:Up(), v.angle.y)
+--         ang:RotateAroundAxis(ang:Right(), v.angle.p)
+--         ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+--         cam.Start3D2D(drawpos, ang, v.size)
+--         v.draw_func(self)
+--         cam.End3D2D()
+--       end
+--     end
+--   end
+
+--   function SWEP:GetBoneOrientation(basetab, tab, ent, bone_override)
+--     local bone, pos, ang
+--     if tab.rel and tab.rel ~= "" then
+--       local v = basetab[tab.rel]
+--       if not v then return end
+--       -- Technically, if there exists an element with the same name as a bone
+--       -- you can get in an infinite loop. Let's just hope nobody's that stupid.
+--       pos, ang = self:GetBoneOrientation(basetab, v, ent)
+--       if not pos then return end
+--       pos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+--       ang:RotateAroundAxis(ang:Up(), v.angle.y)
+--       ang:RotateAroundAxis(ang:Right(), v.angle.p)
+--       ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+--     else
+--       bone = ent:LookupBone(bone_override or tab.bone)
+--       if not bone then return end
+--       pos, ang = Vector(0, 0, 0), Angle(0, 0, 0)
+--       local m = ent:GetBoneMatrix(bone)
+--       if m then pos, ang = m:GetTranslation(), m:GetAngles() end
+--       if IsValid(self:GetOwner()) and self:GetOwner():IsPlayer() and ent == self:GetOwner():GetViewModel() and self.ViewModelFlip then
+--         ang.r = -ang.r -- Fixes mirrored models
+--       end
+--     end
+--     return pos, ang
+--   end
+
+--   function SWEP:CreateModels(tab)
+--     if not tab then return end
+--     -- Create the clientside models here because Garry says we can't do it in the render hook
+--     for k, v in pairs(tab) do
+--       if v.type == "Model" and v.model and v.model ~= "" and (not IsValid(v.modelEnt) or v.createdModel ~= v.model) and string.find(v.model, ".mdl") and file.Exists(v.model, "GAME") then
+--         v.modelEnt = ClientsideModel(v.model, RENDER_GROUP_VIEW_MODEL_OPAQUE)
+--         if IsValid(v.modelEnt) then
+--           v.modelEnt:SetPos(self:GetPos())
+--           v.modelEnt:SetAngles(self:GetAngles())
+--           v.modelEnt:SetParent(self)
+--           v.modelEnt:SetNoDraw(true)
+--           v.createdModel = v.model
+--         else
+--           v.modelEnt = nil
+--         end
+--       elseif v.type == "Sprite" and v.sprite and v.sprite ~= "" and (not v.spriteMaterial or v.createdSprite ~= v.sprite) and file.Exists("materials/" .. v.sprite .. ".vmt", "GAME") then
+--         local name = v.sprite .. "-"
+--         local params = {
+--           ["$basetexture"] = v.sprite
+--         }
+
+--         -- make sure we create a unique name based on the selected options
+--         local tocheck = {"nocull", "additive", "vertexalpha", "vertexcolor", "ignorez"}
+--         for i, j in pairs(tocheck) do
+--           if v[j] then
+--             params["$" .. j] = 1
+--             name = name .. "1"
+--           else
+--             name = name .. "0"
+--           end
+--         end
+
+--         v.createdSprite = v.sprite
+--         v.spriteMaterial = CreateMaterial(name, "UnlitGeneric", params)
+--       end
+--     end
+--   end
+
+--   local allbones
+--   local hasGarryFixedBoneScalingYet = false
+--   function SWEP:UpdateBonePositions(vm)
+--     if self.ViewModelBoneMods then
+--       if not vm:GetBoneCount() then return end
+--       -- !! WORKAROUND !! //
+--       -- We need to check all model names :/
+--       local loopthrough = self.ViewModelBoneMods
+--       if not hasGarryFixedBoneScalingYet then
+--         allbones = {}
+--         for i = 0, vm:GetBoneCount() do
+--           local bonename = vm:GetBoneName(i)
+--           if self.ViewModelBoneMods[bonename] then
+--             allbones[bonename] = self.ViewModelBoneMods[bonename]
+--           else
+--             allbones[bonename] = {
+--               scale = Vector(1, 1, 1),
+--               pos = Vector(0, 0, 0),
+--               angle = Angle(0, 0, 0)
+--             }
+--           end
+--         end
+
+--         loopthrough = allbones
+--       end
+
+--       -- !! ----------- !! //
+--       for k, v in pairs(loopthrough) do
+--         local bone = vm:LookupBone(k)
+--         if not bone then continue end
+--         -- !! WORKAROUND !! //
+--         local s = Vector(v.scale.x, v.scale.y, v.scale.z)
+--         local p = Vector(v.pos.x, v.pos.y, v.pos.z)
+--         local ms = Vector(1, 1, 1)
+--         if not hasGarryFixedBoneScalingYet then
+--           local cur = vm:GetBoneParent(bone)
+--           while cur >= 0 do
+--             local pscale = loopthrough[vm:GetBoneName(cur)].scale
+--             ms = ms * pscale
+--             cur = vm:GetBoneParent(cur)
+--           end
+--         end
+
+--         s = s * ms
+--         -- !! ----------- !! //
+--         if vm:GetManipulateBoneScale(bone) ~= s then vm:ManipulateBoneScale(bone, s) end
+--         if vm:GetManipulateBoneAngles(bone) ~= v.angle then vm:ManipulateBoneAngles(bone, v.angle) end
+--         if vm:GetManipulateBonePosition(bone) ~= p then vm:ManipulateBonePosition(bone, p) end
+--       end
+--     else
+--       self:ResetBonePositions(vm)
+--     end
+--   end
+
+--   function SWEP:ResetBonePositions(vm)
+--     if not vm:GetBoneCount() then return end
+--     for i = 0, vm:GetBoneCount() do
+--       vm:ManipulateBoneScale(i, Vector(1, 1, 1))
+--       vm:ManipulateBoneAngles(i, Angle(0, 0, 0))
+--       vm:ManipulateBonePosition(i, Vector(0, 0, 0))
+--     end
+--   end
+
+--   --[[*************************
+-- 		Global utility code
+-- 	*************************]]
+--   -- Fully copies the table, meaning all tables inside this table are copied too and so on (normal table.Copy copies only their reference).
+--   -- Does not copy entities of course, only copies their reference.
+--   -- WARNING: do not use on tables that contain themselves somewhere down the line or you'll get an infinite loop
+--   function table.FullCopy(tab)
+--     if not tab then return nil end
+--     local res = {}
+--     for k, v in pairs(tab) do
+--       if type(v) == "table" then
+--         res[k] = table.FullCopy(v) -- recursion ho!
+--       elseif type(v) == "Vector" then
+--         res[k] = Vector(v.x, v.y, v.z)
+--       elseif type(v) == "Angle" then
+--         res[k] = Angle(v.p, v.y, v.r)
+--       else
+--         res[k] = v
+--       end
+--     end
+--     return res
+--   end
+-- end
+
+-- if CLIENT then
+--   local LaserMaterial = Material("effects/laser_citadel1")
+--   local MuzzleMaterial = CreateMaterial("LaserGunMuzzle2", "UnlitGeneric", {
+--     ["$basetexture"] = "sprites/redglow1",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleMaterial2 = CreateMaterial("LaserGunMuzzle3", "UnlitGeneric", {
+--     ["$basetexture"] = "sprites/yellowflare",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleMaterial4 = CreateMaterial("LaserGunMuzzle5", "UnlitGeneric", {
+--     ["$basetexture"] = "effects/exit1",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleMaterialhit = CreateMaterial("LaserGunMuzzle6", "UnlitGeneric", {
+--     ["$basetexture"] = "sprites/yellowflare",
+--     ["$vertexcolor"] = 1,
+--     ["$vertexalpha"] = 1,
+--     ["$additive"] = 1
+--   })
+
+--   local MuzzleColor = Color(0, 255, 0)
+--   local EFFECT = {}
+--   function EFFECT:Init(data)
+--     self.WeaponEnt = data:GetEntity()
+--     self.Gmoder = self.WeaponEnt:GetOwner()
+--   end
+
+--   function EFFECT:Think()
+--     if IsValid(self.WeaponEnt) and IsValid(self.Gmoder) and self.Gmoder:Alive() and IsValid(self.Gmoder:GetActiveWeapon()) and self.Gmoder:GetActiveWeapon() == self.WeaponEnt then
+--       local weaponModel = IsValid(self.Gmoder:GetViewModel()) and self.Gmoder:GetViewModel() or self.WeaponEnt
+--       local muzzle = weaponModel:GetAttachment(2)
+--       if muzzle == nil then return end
+--       if not IsValid(self.Gmoder) then return end
+--       local tr = self.Gmoder:GetEyeTraceNoCursor()
+--       self.WeaponEnt:SetRenderBoundsWS(muzzle.Pos, tr.HitPos)
+--       self:SetRenderBoundsWS(muzzle.Pos, tr.HitPos)
+--       return true
+--     end
+--   end
+
+--   function EFFECT:Render()
+--     if IsValid(self.WeaponEnt) and self.WeaponEnt:GetNWBool("de_high") == true and IsValid(self.Gmoder) and self.Gmoder:Alive() and IsValid(self.Gmoder:GetActiveWeapon()) and self.Gmoder:GetActiveWeapon() == self.WeaponEnt and not self.Gmoder:InVehicle() and LocalPlayer():ShouldDrawLocalPlayer() then
+--       if not (self.WeaponEnt:GetNextPrimaryFire() < CurTime()) then return end
+--       -- get the proper muzzle attachment
+--       local weaponModel = self.WeaponEnt
+--       local muzzle = weaponModel:GetAttachment(2)
+--       if muzzle == nil then return end
+--       if not IsValid(self.Gmoder) then return end
+--       local tr = self.Gmoder:GetEyeTraceNoCursor()
+--       self.WeaponEnt:SetRenderBoundsWS(muzzle.Pos, tr.HitPos)
+--       self:SetRenderBoundsWS(muzzle.Pos, tr.HitPos)
+--       MuzzleColor.a = 1 * 255
+--       local muzzleSize = 16 + math.Rand(-1, 1)
+--       if IsValid(self.Gmoder) and self.Gmoder:KeyDown(IN_ATTACK) then muzzleSize = muzzleSize * 2 end
+--       local muzzleOffset = muzzle.Ang:Forward()
+--       muzzleOffset:Mul((weaponModel == self.WeaponEnt) and 0 or 8)
+--       local muzzlePos = muzzle.Pos + muzzleOffset
+--       if self.WeaponEnt:GetNWBool("de_high") then
+--         render.SetMaterial(MuzzleMaterial)
+--         render.DrawSprite(muzzlePos, muzzleSize, muzzleSize, MuzzleColor)
+--         render.DrawSprite(muzzlePos, muzzleSize, muzzleSize, MuzzleColor)
+--         render.DrawSprite(tr.HitPos, math.random(16, 64), math.random(16, 64), MuzzleColor)
+--         render.DrawSprite(tr.HitPos, math.random(16, 64), math.random(16, 64), MuzzleColor)
+--         render.SetMaterial(MuzzleMaterial4)
+--         render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--         render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--         render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--         render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--         render.SetMaterial(MuzzleMaterial2)
+--         render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--         render.DrawSprite(tr.HitPos, math.random(16, 32), math.random(16, 32), MuzzleColor)
+--         render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--         render.DrawSprite(muzzlePos, muzzleSize / 2, muzzleSize / 2, Color(0, 255, 0))
+--         render.SetMaterial(MuzzleMaterialhit)
+--         render.DrawSprite(tr.HitPos, math.random(12, 24), math.random(12, 24), color_white)
+--         render.DrawSprite(tr.HitPos, math.random(12, 24), math.random(12, 24), color_white)
+--         render.SetMaterial(LaserMaterial)
+--         render.DrawBeam(muzzlePos, tr.HitPos, math.random(5, 10), CurTime() * 200, CurTime() * 200, Color(0, 255, 0))
+--         render.DrawBeam(muzzlePos, tr.HitPos, math.random(5, 10), CurTime() * 200, CurTime() * 200, Color(0, 255, 0))
+--         local increment = tr.HitPos - muzzlePos
+--         local distance = increment:Length()
+--         local num = math.Clamp(math.floor(distance / 40), 8, 100)
+--         increment:Normalize()
+--         increment:Mul(distance / num)
+--         render.StartBeam(num + 1)
+--         -- don't add a wiggle to the first cp
+--         render.AddBeam(muzzlePos, 5, 1)
+--         for i = 1, num do
+--           local vectorRand = VectorRand()
+--           vectorRand:Mul(1.1)
+--           muzzlePos:Add(increment)
+--           render.AddBeam(muzzlePos + vectorRand, 5, 1)
+--         end
+
+--         render.EndBeam()
+--         if CurTime() > self.WeaponEnt.NextHitEffect then self.WeaponEnt.NextHitEffect = CurTime() + 0.01 end
+--       end
+--     end
+--     -- sdsd
+--   end
+
+--   effects.Register(EFFECT, "sbeam_effect2", true)
+-- end
+
+-- if SERVER then
+--   hook.Add("TTTOnCorpseCreated", "PetrificationHalloween_CorpseCreated", function(corpse, ply)
+--     if IsValid(ply) and ply:GetNWBool("PetrifiedToDeath") then
+--       corpse:SetMaterial(GetConVar("pb_texture"):GetString())
+--       corpse:SetNWBool("PetrifiedToDeath", true)
+--       corpse:SetNWFloat("PetrifiedAmount", 0)
+
+--       local phys_count = corpse:GetPhysicsObjectCount()
+--       for i = 0, phys_count - 1 do
+--         local phys = corpse:GetPhysicsObjectNum(i)
+--         if IsValid(phys) then
+--           phys:EnableMotion(false)
+--           phys:SetMass(500)
+--           phys:SetMaterial("boulder")
+--         end
+--       end
+--     end
+--   end)
+-- end

@@ -1,0 +1,23 @@
+hostname		"{{HOSTNAME}}"
+sv_loadingurl   "{{LOADING_URL}}"
+sv_downloadurl  ""
+sv_location {{SERVER_LOCATION}}
+sv_hibernate_think 1
+sv_allowdownload 0
+
+// TTT Settings
+ttt_preptime_seconds {{PREP_TIME}}
+ttt_posttime_seconds {{POST_TIME}}
+ttt_postround_dm 1
+ttt_haste 0          // Disable haste mode entirely
+ttt_roundtime_minutes 6  // Set round time to 6 minutes flat
+// ttt_karma 0
+ttt_karma_low_amount 600
+ttt_namechange_bantime 0
+ttt_voice_drain 1
+ttt_voice_drain_normal 0.07
+
+// Custom Settings
+sv_crazyphysics_warning 0
+
+net_maxfilesize 64
