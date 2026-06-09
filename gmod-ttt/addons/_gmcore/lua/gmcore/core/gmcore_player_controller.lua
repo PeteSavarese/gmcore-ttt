@@ -103,7 +103,7 @@ end
 ---@param name string Unique key of the data
 ---@param value any Value to store
 ---@param fPostRunFunc? fun(success: boolean) Optional callback after save
-function pMeta:GMCoreGetAllPData(name, value, fPostRunFunc)
+function pMeta:GMCoreSetPData(name, value, fPostRunFunc)
 	if gmcore.Database.CurrentlyRunningPData then
 		-- Query is currently running which hasn't completed. Put into backlog to run after query finishes
 		table.insert(gmcore.Database.BackLogSetPData, { name, value, fPostRunFunc, self })

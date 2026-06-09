@@ -311,7 +311,7 @@ local function updateWeaponPersistentData(steamId, weapon, kills, isHeadshot)
 
 	ply:GMCoreGetPData(dataKey, 0, function(currentValue)
 		local newValue = currentValue + kills
-		ply:GLSetPData(dataKey, newValue, function() end)
+		ply:GMCoreSetPData(dataKey, newValue, function() end)
 	end)
 end
 
