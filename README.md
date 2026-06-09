@@ -14,7 +14,7 @@ Giant's Lair is where the real work began. I managed a team of developers and ra
 These days my focus is on what's next outside of GMod, but I'm proud of what this turned into and grateful for everyone I built it with. I'm releasing the repo as the finished form of that work, not as something I'll keep actively maintaining. Server owners, take it, fork/clone it, and make it your own. GMod is still alive and well, and the best form of creativity and uniquness per-server out there.
 
 ## Looking for the Main GMCore Code?
-Jump to [main GMCore code](https://github.com/PeteSavarese/gmcore-ttt/tree/main/gmod-ttt/addons/_gmcore/lua) at `/addons/_gmcore/lua`.
+Jump to [main GMCore code](https://github.com/PeteSavarese/gmcore-ttt/tree/main/gmod-ttt/addons/_gmcore/lua) at `gmod-ttt/addons/_gmcore/lua`.
 
 ## Local Development Setup
 
